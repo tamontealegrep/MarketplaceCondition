@@ -1,4 +1,5 @@
 *.pyc
+*.docx
 *.egg-info/
 __pycache__/
 backups/

@@ -948,12 +948,935 @@ COLUMNS_ORDER = [
 ```
 ```python
 # Organize dataframe columns
-    df = df.reindex(columns=COLUMNS_ORDER)
+df = df.reindex(columns=COLUMNS_ORDER)
 ```
 ```python
 # Transforms boolean column
 bool_columns = df.select_dtypes(include=bool).columns
 df[bool_columns] = df[bool_columns].astype(int)
 ```
-An essential step forward: The function preprocess_dataset() has been coded and resides within src/features/data_preprocessing.py. This paves the way for streamlined data preprocessing in future endeavors.
+An essential step forward: The function `preprocess_dataset()` has been coded and resides within `src/features/data_preprocessing.py`. This paves the way for streamlined data preprocessing in future endeavors.
 # 3. Data Exploratory Analisys (DAE)
+
+Prior to delving into the analysis, it is imperative to conduct a thorough examination of the columns, scrutinizing their respective sources and discerning the nature of their data types. This preliminary step is pivotal in laying a robust foundation for subsequent data processing and analysis, ensuring a comprehensive understanding of the dataset's composition and characteristics.
+
+--------
+<table>
+  <thead>
+    <tr>
+      <th>Variable</th>
+      <th>Data Type</th>
+      <th>Source</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>price</td>
+      <td>float</td>
+      <td>dataset</td>
+      <td>Price of the product.</td>
+    </tr>
+    <tr>
+      <td>price_in_usd</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the price of the product is in US dollars.</td>
+    </tr>
+    <tr>
+      <td>initial_quantity</td>
+      <td>int</td>
+      <td>dataset</td>
+      <td>Initial quantity of products available for sale.</td>
+    </tr>
+    <tr>
+      <td>sold_quantity</td>
+      <td>int</td>
+      <td>dataset</td>
+      <td>Quantity of products sold.</td>
+    </tr>
+    <tr>
+      <td>available_quantity</td>
+      <td>int</td>
+      <td>dataset</td>
+      <td>Current quantity of products available for sale.</td>
+    </tr>
+    <tr>
+      <td>warranty_info</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the seller provides information about the product warranty.</td>
+    </tr>
+    <tr>
+      <td>mode_buy_it_now</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the sale is made using the "Buy it now" option.</td>
+    </tr>
+    <tr>
+      <td>mode_classified</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the sale is made using the "Classifieds" option.</td>
+    </tr>
+    <tr>
+      <td>mode_auction</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the sale is made using the "Auction" option.</td>
+    </tr>
+    <tr>
+      <td>cash_payment</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether cash or money order payment is accepted.</td>
+    </tr>
+    <tr>
+      <td>card_payment</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether payment by credit card is accepted.</td>
+    </tr>
+    <tr>
+      <td>bank_payment</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether payment by bank transfer or certified check is accepted.</td>
+    </tr>
+    <tr>
+      <td>mercadopago_payment</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether payment through MercadoPago is accepted.</td>
+    </tr>
+    <tr>
+      <td>agree_with_buyer_payment</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the seller agrees with the buyer's payment method.</td>
+    </tr>
+    <tr>
+      <td>shipping_me1</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the shipping mode is "me1".</td>
+    </tr>
+    <tr>
+      <td>shipping_me2</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the shipping mode is "me2".</td>
+    </tr>
+    <tr>
+      <td>shipping_custom</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the shipping mode is "custom".</td>
+    </tr>
+    <tr>
+      <td>shipping_not_specified</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the shipping mode is not specified.</td>
+    </tr>
+    <tr>
+      <td>free_shipping</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether free shipping is offered.</td>
+    </tr>
+    <tr>
+      <td>local_pick_up</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether local pick-up is available.</td>
+    </tr>
+    <tr>
+      <td>buenos_aires_seller</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the seller is located in Buenos Aires.</td>
+    </tr>
+    <tr>
+      <td>listing_free</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the listing type is "free".</td>
+    </tr>
+    <tr>
+      <td>listing_bronze</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the listing type is "bronze".</td>
+    </tr>
+    <tr>
+      <td>listing_silver</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the listing type is "silver".</td>
+    </tr>
+    <tr>
+      <td>listing_gold</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the listing type is "gold", "gold_pro", "gold_premium" or "gold_special".</td>
+    </tr>
+    <tr>
+      <td>start_week</td>
+      <td>int</td>
+      <td>transformed</td>
+      <td>Week when the listing started.</td>
+    </tr>
+    <tr>
+      <td>start_day</td>
+      <td>int</td>
+      <td>transformed</td>
+      <td>Day of the week when the listing started.</td>
+    </tr>
+    <tr>
+      <td>stop_week</td>
+      <td>int</td>
+      <td>transformed</td>
+      <td>Week when the listing stopped.</td>
+    </tr>
+    <tr>
+      <td>stop_day</td>
+      <td>int</td>
+      <td>transformed</td>
+      <td>Day of the week when the listing stopped.</td>
+    </tr>
+    <tr>
+      <td>days_active</td>
+      <td>int</td>
+      <td>transformed</td>
+      <td>Number of days the listing was active.</td>
+    </tr>
+    <tr>
+      <td>is_active</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the listing is currently active.</td>
+    </tr>
+    <tr>
+      <td>num_pictures</td>
+      <td>int</td>
+      <td>transformed</td>
+      <td>Number of pictures included in the listing.</td>
+    </tr>
+    <tr>
+      <td>automatic_relist</td>
+      <td>bool</td>
+      <td>dataset</td>
+      <td>Indicates whether automatic relisting is enabled.</td>
+    </tr>
+    <tr>
+      <td>dragged_bids_or_visits</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the listing has been visited or bid on.</td>
+    </tr>
+  </tbody>
+</table>
+
+--------
+The target column was transformed from 'status' to 'is_new'
+
+<table>
+  <thead>
+    <tr>
+      <th>Variable</th>
+      <th>Data Type</th>
+      <th>Source</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>is_new</td>
+      <td>bool</td>
+      <td>transformed</td>
+      <td>Indicates whether the product is new.</td>
+    </tr>
+  </tbody>
+</table>
+
+
+## 3.1 Import Libraries and Data
+```python
+import pandas as pd
+import numpy as np
+from scipy.stats import yeojohnson
+from src.features.data_process import DataScaler
+```
+```python
+MAKE_DATASET = False
+if MAKE_DATASET:
+    X_train, y_train, X_test, y_test = build_dataset()
+
+    X_train = pd.DataFrame(X_train)
+    X_test = pd.DataFrame(X_test)
+    y_train = pd.DataFrame(y_train)
+    y_test = pd.DataFrame(y_test)
+
+    y_train.columns = ['condition']
+    y_test.columns = ['condition']
+
+    train_data, train_target = preprocess_dataset(X_train,y_train,del_na=True)
+    test_data, test_target = preprocess_dataset(X_test,y_test,del_na=True)
+
+    train_data.to_csv("../data/staging/train_data.csv", index=False)
+    train_target.to_csv("../data/staging/train_target.csv", index=False)
+    test_data.to_csv("../data/staging/test_data.csv", index=False)
+    test_target.to_csv("../data/staging/test_target.csv", index=False)
+
+else:
+    train_data = pd.read_csv("../data/staging/train_data.csv")
+    train_target = pd.read_csv("../data/staging/train_target.csv")
+    test_data = pd.read_csv("../data/staging/test_data.csv")
+    test_target = pd.read_csv("../data/staging/test_target.csv")
+```
+```python
+df = pd.concat([train_data, train_target], axis=1).copy(deep=True)
+df_2 = pd.concat([test_data, test_target], axis=1).copy(deep=True)
+```
+## 3.2 Data Exploration Analisis (DAE)
+```python
+target_column = ["is_new"]
+numeric_columns = ['price','initial_quantity','sold_quantity','available_quantity','days_active','num_pictures']
+date_columns = ["start_week", "start_day", "stop_week", "stop_day"]
+bool_columns = ['price_in_usd', 'warranty_info', 'mode_buy_it_now', 'mode_classified','mode_auction', 'cash_payment', 'card_payment', 'bank_payment','mercadopago_payment','agree_with_buyer_payment','shipping_me1','shipping_me2', 'shipping_custom', 'shipping_not_specified','free_shipping', 'local_pick_up', 'buenos_aires_seller', 'listing_free','listing_bronze', 'listing_silver','listing_gold', 'is_active', 'automatic_relist', 'dragged_bids_or_visits']
+```
+### 3.2.1 Bool columns
+
+In this phase of our analysis, we embark on an examination of the distribution patterns exhibited by binary categorical variables within our dataset. The exploration of these variables serves as a crucial step in understanding the fundamental characteristics and potential insights they may provide.
+
+```python
+def create_subplots(plot_function, data, classes, num_rows, num_cols,
+                    title="", title_font_size=16, fig_size=(5,5),
+                    share_x = False, share_y = False,**kwargs):
+    """
+    Create a figure with a grid of subplots and apply a plotting function to each subplot.
+
+    Parameters:
+        plot_function (function): The function to apply to each subplot. It should accept two parameters:
+                                  the subplot axis and the DataFrame for plotting.
+        data (pandas.DataFrame): The DataFrame containing the data for plotting.
+        classes (list): A list of class labels or identifiers.
+        num_rows (int): The number of rows in the subplot grid.
+        num_cols (int): The number of columns in the subplot grid.
+        title (str, optional): The title for the entire figure.
+        title_font_size (int, optional): The font size for the title of the entire figure.
+        fig_size (tuple, optional): The size of the figure (width, height) in inches.
+        **kwargs: Arbitrary keyword arguments to pass to plot_function.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If the number of classes is greater than the number of subplots.
+    """
+
+    if len(classes) > num_rows * num_cols:
+        raise ValueError("Number of classes are greater than the number of subplots.")
+    
+    if num_rows == 1 and num_cols == 1:
+        fig, ax = plt.subplots(figsize=fig_size)
+        plot_function(ax, data, classes[0], **kwargs)
+        ax.set_title(title)
+        plt.show()
+        return
+
+    fig, axs = plt.subplots(nrows=num_rows, ncols=num_cols, figsize=fig_size,sharex=share_x,sharey=share_y)
+    if not (num_rows == 1 and num_cols == 1) and title != "":
+        fig.suptitle(title, fontsize=title_font_size) 
+    
+    for i in range(num_rows * num_cols):
+        if i < len(classes):
+            row = i // num_cols
+            col = i % num_cols
+            if num_rows == 1:
+                ax = axs[col]
+            elif num_cols == 1:
+                ax = axs[row]
+            else:
+                ax = axs[row, col]
+
+            plot_function(ax, data, classes[i],**kwargs)
+        
+        else:
+            fig.delaxes(axs.flat[i])
+    
+    fig.tight_layout()
+    plt.show()
+```
+
+```python
+def binary_countplot_function(ax, data, class_label, **kwargs):
+    """
+    Plotting function to create a countplot using Seaborn for binary categorical variables (0 or 1).
+
+    Parameters:
+        ax (matplotlib.axes.Axes): The axes object of the subplot.
+        data (pandas.Series or pandas.DataFrame): The data to create the countplot.
+        class_label (str): The class label or identifier associated with the data.
+        **kwargs: Additional keyword arguments to pass to sns.countplot().
+
+    Returns:
+        None
+    """
+    sns.countplot(x=data[class_label], data=data, ax=ax, **kwargs)
+    ax.set_xticklabels(['False', 'True'])
+```
+
+--------
+```python
+create_subplots(binary_countplot_function, df, target_column + bool_columns, num_rows=5, num_cols=5, fig_size=(20, 20),share_y=True)
+```
+*Output:*
+
+![Binary countplot](images/3_2_1.png)
+
+--------
+The generated heatmap, produced by the boolean_correlation_heatmap_function(), illustrates the correlation between two boolean columns within a dataset. It represents a correlation matrix where each cell corresponds to a pair of states from the two boolean variables. It facilitates the identification of patterns and relationships between them within the dataset.
+
+Interpretation:
+
+- Higher values signify a higher proportion of cases where both boolean variables share the same state, implying a stronger correlation.
+- Lower values indicate a weaker correlation between the states of the two variables.
+
+Is sensitive to data imbalance.
+
+```python
+def boolean_correlation_heatmap_function(ax, data, column_1, column_2=None,**kwargs):
+    """
+    Create a heatmap subplot showing the correlation between two boolean columns.
+
+    Parameters:
+        ax (matplotlib.axes.Axes): The subplot axis to draw the heatmap.
+        data (pandas.DataFrame): The DataFrame containing the data.
+        column_1 (str): The name of the first boolean column.
+        column_2 (str): The name of the second boolean column.
+
+    Returns:
+        None
+    """
+    if column_2 is None:
+        column_2 = kwargs.pop('column_2', None)
+    if column_2 is None:
+        raise ValueError("The 'column_2' keyword argument is missing.")
+    df = data
+
+    case_1_counts = df[(df[column_1] == False) & (df[column_2] == False)].shape[0]
+    case_2_counts = df[(df[column_1] == False) & (df[column_2] == True)].shape[0]
+    case_3_counts = df[(df[column_1] == True) & (df[column_2] == False)].shape[0]
+    case_4_counts = df[(df[column_1] == True) & (df[column_2] == True)].shape[0]
+
+    column_1_true_count = df[column_1].sum()
+    column_1_false_count = df.shape[0] - column_1_true_count
+    column_2_true_count = df[column_2].sum()
+    column_2_false_count = df.shape[0] - column_2_true_count
+
+    case_1_percentage = (case_1_counts / column_1_false_count) * (case_1_counts / column_2_false_count) * 100
+    case_2_percentage = (case_2_counts / column_1_false_count) * (case_2_counts / column_2_true_count) * 100
+    case_3_percentage = (case_3_counts / column_1_true_count) * (case_3_counts / column_2_false_count) * 100
+    case_4_percentage = (case_4_counts / column_1_true_count) * (case_4_counts / column_2_true_count) * 100
+
+    correlation_matrix = pd.DataFrame([[case_1_percentage, case_2_percentage],
+                                       [case_3_percentage, case_4_percentage]],
+                                      index=[False, True], columns=[False, True])
+
+    sns.heatmap(correlation_matrix, annot=True, cmap='RdBu', fmt='.1f', cbar=False, vmin=0, vmax=100, ax=ax,**kwargs)
+
+    ax.set_xlabel(column_2)
+    ax.set_ylabel(column_1)
+    ax.set_title(f'{column_1} | {column_2}')
+```
+--------
+```python
+create_subplots(boolean_correlation_heatmap_function, df, target_column + bool_columns, num_rows=5, num_cols=5, title="", fig_size=(20, 20),share_y=True, column_2="is_new")
+```
+*Output:*
+
+![Binary countplot](images/3_2_1-1.png)
+
+--------
+
+### 3.2.2 Numeric columns
+--------
+```python
+df[numeric_columns].describe()
+```
+*Output:*
+
+```
+|            | price       | initial_quantity | sold_quantity | available_quantity | days_active | num_pictures |
+|------------|-------------|------------------|---------------|--------------------|-------------|--------------|
+| count      | 9.000000e+04| 90000.000000     | 90000.000000  | 90000.000000       | 90000.000000| 90000.000000 |
+| mean       | 5.781352e+04| 34.957178        | 2.328044      | 34.700767          | 60.924078  | 2.930322     |
+| std        | 9.089555e+06| 421.091981       | 33.839328     | 420.811703         | 38.226420  | 2.104230     |
+| min        | 8.400000e-01| 1.000000         | 0.000000      | 1.000000           | 0.000000   | 0.000000     |
+| 25%        | 9.000000e+01| 1.000000         | 0.000000      | 1.000000           | 60.000000  | 1.000000     |
+| 50%        | 2.500000e+02| 1.000000         | 0.000000      | 1.000000           | 60.000000  | 2.000000     |
+| 75%        | 8.000000e+02| 2.000000         | 0.000000      | 2.000000           | 60.000000  | 4.000000     |
+| max        | 2.222222e+09| 9999.000000      | 6065.000000   | 9999.000000        | 3457.000000| 36.000000    |
+
+```
+--------
+```python
+def boxplot_function(ax, data, class_label,**kwargs):
+    """
+    Create a boxplot on the given subplot axis using the provided DataFrame.
+
+    Parameters:
+        ax (matplotlib.axes.Axes): The subplot axis to draw the boxplot.
+        data (pandas.Series or pandas.DataFrame): The data for the boxplot.
+        class_label (str): The label for the class corresponding to the data.
+        **kwargs: Arbitrary keyword arguments to pass to seaborn.boxplot.
+
+    Returns:
+        None
+    """
+    sns.boxplot(data=data[class_label], ax=ax,**kwargs)
+    ax.set_xlabel(class_label)
+```
+--------
+```python
+create_subplots(boxplot_function, df, numeric_columns, num_rows=2, num_cols=3, title="Initial Boxplot", fig_size=(15, 10))
+```
+*Output:*
+
+![Binary countplot](images/3_2_2.png)
+
+--------
+```python
+def histogram_function(ax, data, class_label,**kwargs):
+    """
+    Create a histogram on the given subplot axis using the provided DataFrame.
+
+    Parameters:
+        ax (matplotlib.axes.Axes): The subplot axis to draw the histogram.
+        data (pandas.Series or pandas.DataFrame): The data for the histogram.
+        class_label (str): The label for the class corresponding to the data.
+        **kwargs: Arbitrary keyword arguments to pass to seaborn.histplot.
+
+    Returns:
+        None
+    """
+    sns.histplot(data=data[class_label], ax=ax,**kwargs)
+    ax.set_xlabel(class_label)
+```
+--------
+```python
+create_subplots(histogram_function, df, numeric_columns, num_rows=2, num_cols=3, title="Initial Histogram", fig_size=(15, 10),share_y=True, bins=50, kde=False)
+```
+*Output:*
+
+![Binary countplot](images/3_2_2-1.png)
+
+--------
+
+We will construct a correlation matrix for the numerical columns to identify potential multicollinearity issues. This matrix provides insights into the strength and direction of linear relationships between pairs of variables, aiding in the detection of highly correlated features which may adversely affect certain analyses, such as regression models.
+
+```python
+def plot_correlation_matrix(df, columns, fig_size=(10, 8), **kwargs):
+    """
+    Plot the correlation matrix for specified columns of a DataFrame.
+
+    Parameters:
+        df (pandas.DataFrame): The DataFrame containing the data.
+        columns (list): A list of column names to include in the correlation matrix.
+        fig_size (tuple, optional): The size of the figure (width, height) in inches. Default is (10, 8).
+        **kwargs: Additional keyword arguments to pass to sns.heatmap().
+
+    Returns:
+        None
+    """
+    correlation_matrix = df[columns].corr()
+
+    if 'cmap' in kwargs:
+        cmap = kwargs.pop('cmap')
+    else:
+        cmap = 'coolwarm'
+
+    plt.figure(figsize=fig_size)
+    sns.heatmap(correlation_matrix, annot=True, cmap=cmap, fmt=".2f", linewidths=0.5, vmax=1, vmin=-1, **kwargs)
+    plt.title('Correlation Matrix')
+    plt.show()
+```
+
+--------
+```python
+plot_correlation_matrix(df, numeric_columns)
+```
+*Output:*
+
+![Binary countplot](images/3_2_2-2.png)
+
+--------
+
+we observed a strong correlation only between 'initial_quantity' and 'available_quantity.' This correlation is primarily attributed to instances where the product remains unsold at the time of data evaluation. However, for the remaining variables, no significant correlations were observed, indicating independence among most features.
+
+### 3.2.3 Date columns
+For the variable 'start_week', the distribution is concentrated between weeks 32 and 42, while for the variable 'stop_week', the concentration lies between weeks 43 and 52.
+
+--------
+```python
+create_subplots(histogram_function, df, ['start_week','stop_week'], num_rows=1, num_cols=2, title="Week Data Histogram", fig_size=(10, 5),share_y=True, bins=52, kde=False)
+```
+*Output:*
+
+![Binary countplot](images/3_2_3.png)
+
+--------
+Regarding 'start_day', its distribution is predominantly concentrated within the initial days of the week, exhibiting contrasting behavior to 'stop_day', where the concentration shifts towards later days of the week.
+
+--------
+```python
+create_subplots(histogram_function, df, ['start_day','stop_day'], num_rows=1, num_cols=2, title="Weekday Data Histogram", fig_size=(10, 5),share_y=True, bins=7, kde=False)
+```
+*Output:*
+
+![Binary countplot](images/3_2_3-1.png)
+
+--------
+
+### 3.2.4 Outlier detection
+The detection of outliers in numerical columns will focus on three key features: 'price', 'days_active', 'initial_quantity', 'sold_quantity' and 'pictures'. 'available_quantity' will not be evaluated directly as it is dependent on 'initial_quantity'. This approach ensures a focused analysis on the core attributes while considering the interdependence among related features.
+
+#### 3.2.4.1 days_active
+--------
+```python
+print(f"Range days_active: {df['days_active'].min()} - {df['days_active'].max()}")
+plot_percentile_range(df,"days_active",0)
+```
+*Output:*
+
+Range days_active: 0 - 3457
+![Binary countplot](images/3_2_4_1.png)
+
+--------
+
+For the variable 'days_active', it is noteworthy that while the data range spans from 0 to 3457, the majority of observations cluster below 100. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
+
+--------
+```python
+days_active_range = 5
+days_active_slice = percentile_range_data(df["days_active"],0+days_active_range,100-days_active_range)
+print(f"Range days_active p{0+days_active_range} - p{100-days_active_range} : {days_active_slice.min()} - {days_active_slice.max()}")
+print(f"Number of observations: {len(days_active_slice)}")
+plot_percentile_range(df,"days_active",1)
+```
+*Output:*
+
+Range days_active p5 - p95 : 60 - 60
+Number of observations: 87101
+![Binary countplot](images/3_2_4_1-1.png)
+
+--------
+
+Upon analyzing only the values falling within the range of the 5th to 95th percentiles, the 'days_active' variable is observed to be solely 60.
+
+#### 3.2.4.2 price
+--------
+```python
+print(f"Range price: {df['price'].min()} - {df['price'].max()}")
+plot_percentile_range(df,"price",0,log_scale=True)
+```
+*Output:*
+
+Range price: 0.84 - 2222222222.0
+![Binary countplot](images/3_2_4_2.png)
+
+--------
+
+For the variable 'price', it is noteworthy that while the data range spans from 0.84 to 2,222,222,222 the majority of observations cluster below 10000. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
+
+--------
+```python
+price_range = 2
+price_slice = percentile_range_data(df["price"],0+price_range,100-price_range)
+print(f"Range price p{0+price_range} - p{100-price_range} : {price_slice.min()} - {price_slice.max()}")
+print(f"Number of observations: {len(price_slice)}")
+plot_percentile_range(df,"price",price_range,log_scale=True)
+```
+*Output:*
+
+Range price p2 - p98 : 24.99 - 36000.0
+Number of observations: 86429
+![Binary countplot](images/3_2_4_2-1.png)
+
+--------
+
+Upon analyzing the data, it has been observed that a substantial portion, precisely 96%, of the dataset lies within a fairly compact range spanning from 24.99 to 36000. This indicates a concentrated distribution of values within this interval, suggestive of a coherent pattern or prevailing behavior within the dataset.
+
+#### 3.2.4.3 initial_quantity
+
+--------
+```python
+print(f"Range initial_quantity: {df['initial_quantity'].min()} - {df['initial_quantity'].max()}")
+plot_percentile_range(df,"initial_quantity",0,log_scale=True)
+```
+*Output:*
+
+Range initial_quantity: 1 - 9999
+![Binary countplot](images/3_2_4_3.png)
+
+--------
+For the variable 'available_quantity', it is noteworthy that while the data range spans from 1 to 9999 the majority of observations cluster below 100. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
+
+--------
+```python
+initial_quantity_range = 4
+initial_quantity_slice = percentile_range_data(df["initial_quantity"],0+initial_quantity_range,100-initial_quantity_range)
+print(f"Range initial_quantity p{0+initial_quantity_range} - p{100-initial_quantity_range} : {initial_quantity_slice.min()} - {initial_quantity_slice.max()}")
+print(f"Number of observations: {len(initial_quantity_slice)}")
+plot_percentile_range(df,"initial_quantity",initial_quantity_range,log_scale=True)
+```
+*Output:*
+
+Range initial_quantity p4 - p96 : 1 - 79
+Number of observations: 86402
+![Binary countplot](images/3_2_4_3-1.png)
+
+--------
+
+Upon analyzing the variable "initial_quantity," it's apparent that 40% of the data is represented by a singular value of 1. Moreover, around 80% of the dataset falls within the range of 1 to 5 units, indicating a concentrated distribution. Additionally, the majority of observations (90%) vary between 1 and 10 units, while a significant portion (95%) spans from 1 to 50 units. Notably, a minority of observations (98%) extend from 1 to 150 units, suggesting the presence of outliers. These insights illuminate the variable's distributional nuances and potential impacts on analyses.
+
+#### 3.2.4.4 sold_quantity
+--------
+```python
+print(f"Range sold_quantity: {df['sold_quantity'].min()} - {df['sold_quantity'].max()}")
+plot_percentile_range(df,"sold_quantity",0,log_scale=True)
+```
+*Output:*
+
+Range sold_quantity: 0 - 6065
+![Binary countplot](images/3_2_4_4.png)
+
+--------
+
+For the variable 'sold_quantity', it is noteworthy that while the data range spans from 1 to 1540 the majority of observations cluster below 100. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
+
+--------
+```python
+sold_quantity_range = 1
+sold_quantity_slice = percentile_range_data(df["sold_quantity"],0+sold_quantity_range,100-sold_quantity_range)
+print(f"Range sold_quantity p{0+sold_quantity_range} - p{100-sold_quantity_range} : {sold_quantity_slice.min()} - {sold_quantity_slice.max()}")
+print(f"Number of observations: {len(sold_quantity_slice)}")
+plot_percentile_range(df,"sold_quantity",sold_quantity_range,log_scale=True)
+```
+*Output:*
+
+Range sold_quantity p1 - p99 : 0 - 41
+Number of observations: 89108
+![Binary countplot](images/3_2_4_4-1.png)
+
+--------
+
+Upon analyzing the variable "sold_quantity," it's apparent that 98% of the data is below 50.
+
+#### 3.2.4.5 num_pictures
+
+--------
+```python
+print(f"Range num_pictures: {df['num_pictures'].min()} - {df['num_pictures'].max()}")
+plot_percentile_range(df,"num_pictures",0)
+```
+*Output:*
+
+Range num_pictures: 0 - 36
+![Binary countplot](images/3_2_4_5.png)
+
+--------
+
+For the variable 'num_pictures', the majority of observations cluster below 10. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
+
+--------
+```python
+num_pictures_range = 1
+num_pictures_slice = percentile_range_data(df["num_pictures"],0+num_pictures_range,100-num_pictures_range)
+print(f"Range num_pictures p{0+num_pictures_range} - p{100-num_pictures_range} : {num_pictures_slice.min()} - {num_pictures_slice.max()}")
+print(f"Number of observations: {len(num_pictures_slice)}")
+plot_percentile_range(df,"num_pictures",num_pictures_range,)
+```
+*Output:*
+
+Range num_pictures p1 - p99 : 1 - 9
+Number of observations: 88429
+![Binary countplot](images/3_2_4_5-1.png)
+
+--------
+
+Upon analyzing the variable 'pictures' it's apparent that 98% of the data is below 10.
+
+### 3.2.5 Data Refinement and Outlier removal
+
+Initially, we will discard columns exhibiting substantial imbalance as they predominantly offer redundant information that can be distilled from other columns, the "days_active" column, predominantly featuring a single value (60), will be eliminated. Additionally, we'll define operational bounds for "price" and "initial_quantity," facilitating a focused modeling approach within practical limits.
+
+```python
+columns_to_remove = ["price_in_usd", "mode_classified", "mode_auction", "shipping_me1", "days_active"]
+price_threshold = 50000
+initial_quantity_threshold = 150
+sold_quantity_threshold = 150
+available_quantity_threshold = 150
+num_pictures_threshold = 10
+df_list = [df,df_2]
+for i in df_list:
+    for column in columns_to_remove:
+        i.drop(columns=[column], inplace=True)
+
+    i.drop(i[i['price'] > price_threshold].index, inplace=True)
+    i.drop(i[i['initial_quantity'] > initial_quantity_threshold].index, inplace=True)
+    i.drop(i[i['sold_quantity'] > sold_quantity_threshold].index, inplace=True)
+    i.drop(i[i['available_quantity'] > available_quantity_threshold].index, inplace=True)
+    i.drop(i[i['num_pictures'] > num_pictures_threshold].index, inplace=True)
+```
+### 3.2.6 Skewness
+Skewness is a statistical measure that indicates the asymmetry of a probability distribution around its mean. It quantifies the extent to which a distribution differs from a symmetric, bell-shaped curve. Understanding skewness is crucial as it provides valuable insights into the shape and behavior of data, aiding in making informed decisions and drawing accurate conclusions in statistical analysis. Addressing skewness is essential in data preprocessing to ensure that statistical models and analyses are robust and unbiased. In this step, we will undertake measures to address skewness and enhance the reliability and accuracy of our data analysis.
+#### 3.2.6.1 initial
+During this stage, a thorough analysis will be conducted on the following columns: price, initial_quantity, sold_quantity, available_quantity, and num_pictures
+
+--------
+```python
+create_subplots(kdeplot_function, df, ['price','initial_quantity','sold_quantity','available_quantity'], num_rows=2, num_cols=2, title="Kdeplot", fig_size=(10, 10))
+print(f"Skewness of price: {df['price'].skew():.2}")
+print(f"Skewness of initial_quantity: {df['initial_quantity'].skew():.2}")
+print(f"Skewness of sold_quantity: {df['sold_quantity'].skew():.2}")
+print(f"Skewness of available_quantity: {df['available_quantity'].skew():.2}")
+```
+*Output:*
+
+![Binary countplot](images/3_2_6_1.png)
+
+
+```
+Skewness of price: 7.3 
+Skewness of initial_quantity: 5.2
+Skewness of sold_quantity: 1.1e+01
+Skewness of available_quantity: 5.3
+```
+--------
+
+```python
+create_subplots(kdeplot_function, df, ['num_pictures'], num_rows=1, num_cols=1, title="Kdeplot", fig_size=(5, 5))
+print(f"Skewness of num_pictures: {df['num_pictures'].skew():.2}")
+```
+*Output:*
+
+![Binary countplot](images/3_2_6_1-1.png)
+
+
+```
+Skewness of num_pictures: 0.66
+```
+--------
+The skewness analysis revealed notable disparities across the examined variables. Specifically, the skewness values for price, initial_quantity, sold_quantity, and available_quantity were found to be 7.3, 5.2, 11.0, and 5.3 respectively, indicating considerable asymmetry in their distributions. Conversely, the skewness value for num_pictures was observed to be 0.66, suggesting a relatively balanced distribution. Consequently, no corrective measures are deemed necessary for the num_pictures variable.
+
+#### 3.2.6.2 log10
+Initially, a logarithmic transformation using base 10 is applied to the dataset as part of the preprocessing phase. This transformation, known for its efficacy in addressing skewness. By employing this method, we aim to enhance the interpretability and reliability of our subsequent modeling and inference processes.
+
+--------
+
+```python
+df_skew = df[['price','initial_quantity','sold_quantity','available_quantity']].copy(deep=True)
+
+df_skew['price'] = np.log10(df_skew['price'])
+df_skew['initial_quantity'] = np.log10(df_skew['initial_quantity'])
+df_skew['sold_quantity'] = np.log10(df_skew['sold_quantity'])
+df_skew['available_quantity'] = np.log10(df_skew['available_quantity'])
+
+create_subplots(kdeplot_function, df_skew, ['price','initial_quantity','sold_quantity','available_quantity'], num_rows=2, num_cols=2, title="Kdeplot - log10", fig_size=(10, 10))
+print(f"Skewness of price: {df_skew['price'].skew():.3}")
+print(f"Skewness of initial_quantity: {df_skew['initial_quantity'].skew():.3}")
+print(f"Skewness of sold_quantity: {df_skew['sold_quantity'].skew():.3}")
+print(f"Skewness of available_quantity: {df_skew['available_quantity'].skew():.3}")
+```
+*Output:*
+
+![Binary countplot](images/3_2_6_2.png)
+
+
+```
+Skewness of price: 0.523
+Skewness of initial_quantity: 2.01
+Skewness of sold_quantity: nan
+Skewness of available_quantity: 2.08
+```
+--------
+Upon conducting skewness analysis, it was found that the price variable exhibited a skewness of 0.523, indicating a slight right skew. Initial_quantity and available_quantity displayed skewness values of 2.01 and 2.08 respectively, suggesting moderate positive skewness in their distributions. 
+
+#### 3.2.6.3 yeojohnson
+
+--------
+
+```python
+df_skew = df[['price','initial_quantity','sold_quantity','available_quantity']].copy(deep=True)
+
+yj_price = -0.1326933439177492
+yj_initial_quantity = -1.8163258668093907
+yj_sold_quantity = -3.65996684652743
+yj_available_quantity = -1.8854981114246059
+
+df_skew['price'] = yeojohnson(df_skew['price'],yj_price)
+df_skew['initial_quantity'] = yeojohnson(df_skew['initial_quantity'],yj_initial_quantity)
+df_skew['sold_quantity'] = yeojohnson(df_skew['sold_quantity'],yj_sold_quantity)
+df_skew['available_quantity'] = yeojohnson(df_skew['available_quantity'],yj_available_quantity)
+
+create_subplots(kdeplot_function, df_skew, ['price','initial_quantity','sold_quantity','available_quantity'], num_rows=2, num_cols=2, title="Kdeplot - Yeojohnson", fig_size=(10, 10))
+print(f"Skewness of price: {df_skew['price'].skew():.3}")
+print(f"Skewness of initial_quantity: {df_skew['initial_quantity'].skew():.3}")
+print(f"Skewness of sold_quantity: {df_skew['sold_quantity'].skew():.3}")
+print(f"Skewness of available_quantity: {df_skew['available_quantity'].skew():.3}")
+```
+*Output:*
+
+![Binary countplot](images/3_2_6_3.png)
+
+
+```
+Skewness of price: 0.014
+Skewness of initial_quantity: 1.09
+Skewness of sold_quantity: 1.8
+Skewness of available_quantity: 1.12
+```
+--------
+We've decided to implement the Yeo-Johnson transformation as a corrective measure for the observed skewness. The Yeo-Johnson transformation offers a versatile alternative to conventional methods such as logarithmic or square root transformations. By applying the Yeo-Johnson transformation, we anticipate achieving a more symmetrical distribution, thereby enhancing the robustness of our subsequent analyses and improving model performance.
+
+### 3.2.7 Scale and Normalize
+```python
+for i in range(len(df_list)):
+    df_list[i]['price'] = yeojohnson(df_list[i]['price'], yj_price)
+    df_list[i]['initial_quantity'] = yeojohnson(df_list[i]['initial_quantity'], yj_initial_quantity)
+    df_list[i]['sold_quantity'] = yeojohnson(df_list[i]['sold_quantity'], yj_sold_quantity)
+    df_list[i]['available_quantity'] = yeojohnson(df_list[i]['available_quantity'], yj_available_quantity)
+```
+
+Below is an overview of the data scaling process facilitated by a series of custom transformers:
+
+- WeekScaler: This transformer scales weeks in the year to a range between 0 and 1, offering flexibility in handling temporal data.
+- WeekdayScaler: Similar to WeekScaler, this transformer scales days of the week to a range from 0 to 1, facilitating uniform treatment of temporal variables.
+- OneHotScaler: Designed for handling one-hot encoded variables, this transformer maintains data integrity by leaving such variables unchanged.
+- DataScaler: This class orchestrates the scaling process by leveraging the aforementioned transformers within a predefined pipeline. Columns designated for standardization, min-max scaling, week scaling, weekday scaling, and one-hot encoding are organized and transformed accordingly.
+
+Users are encouraged to explore the implementation of `DataScaler()` provided code, located at path `src/features/data_process.py`, to gain a deeper understanding of the intricacies involved in data scaling and transformation.
+
+```python
+scaler = DataScaler()
+X_train_scaled = df.drop(columns=['is_new']).copy(deep=True)
+y_train_scaled = df[['is_new']].copy(deep=True)
+X_test_scaled = df_2.drop(columns=['is_new']).copy(deep=True)
+y_test_scaled = df_2[['is_new']].copy(deep=True)
+
+X_train_scaled = scaler.fit_transform(X_train_scaled)
+X_test_scaled = scaler.transform(X_test_scaled)
+```
+The processed data will be stored securely to ensure its integrity and accessibility for future analyses.
+```python
+X_train_scaled.to_csv("../data/processed/train_data.csv", index=False)
+y_train_scaled.to_csv("../data/processed/train_target.csv", index=False)
+X_test_scaled.to_csv("../data/processed/test_data.csv", index=False)
+y_test_scaled.to_csv("../data/processed/test_target.csv", index=False)
+```
+Furthermore, to streamline the data processing task, an implementation of the function `process_dataset()` has been developed and is located at path `src/features/data_process.py`. This function encapsulates all necessary steps for data processing, including scaling, encoding, and transformation, thereby simplifying the overall workflow and enhancing efficiency.
+
+# 4. Models

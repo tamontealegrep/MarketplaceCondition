@@ -317,7 +317,7 @@ def preprocess_dataset(df_data,df_target=None,del_na=False,bool_values=False, me
     # Delete na rows:
     if del_na:
         df = df.dropna()
-    
+        
     if df_target is not None:
         df_data = df.drop(columns=['is_new'])
         df_target = df[['is_new']]
