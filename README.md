@@ -29,7 +29,7 @@ In the context of Mercadolibre's Marketplace an algorithm is needed to predict i
 
 Your tasks involve the data analysis, designing, processing and modeling of a machine learning solution to predict if an item is new or used and then evaluate the model over held-out test data.
 
-To assist in that task a dataset is provided in `MLA_100k_checked_v3.jsonlines` and a function `build_dataset` to read that dataset in `new_or_used.py`.
+To assist in that task a dataset is provided in `MLA_100k_checked_v3.jsonlines` and a function `build_dataset()` to read that dataset in `new_or_used.py`.
 
 For the evaluation, you will use the accuracy metric in order to get a result of 0.86 as minimum. Additionally, you will have to choose an appropriate secondary metric and also elaborate an argument on why that metric was chosen.
 
@@ -38,9 +38,82 @@ For the evaluation, you will use the accuracy metric in order to get a result of
 - (Optional) EDA analysis with other format like .ipynb
 
 --------
-# **PREDICT WETHER MARKETPLACE PRODUCTS ARE NEW OR USED**
+# **Predicting Item Condition in Marketplace**
+In the context of binary classification, the variable `condition` originally had two categories, `new` and `used`. It has been redefined as a boolean variable named `is_used`, where it is True when the product is new and False otherwise. The prediction task is not directly about the `is_used` label, but rather about the probability of an item being used. The final classification is determined by analyzing the ROC curve for each model and selecting an appropriate threshold.
 
-## 1. Load Data
+## Model Selection 
+Five models were considered for this task:
+
+1. Logistic Regression
+2. Random Forest
+3. XGBoost
+4. Neural Network
+5. Soft Voting Ensemble (combining the previous four models)
+
+## Evaluation Metrics
+
+In computing the evaluation metrics, four classification cases are established:
+
+- True Positives (TP): Instances correctly classified as "new".
+- True Negatives (TN): Instances correctly classified as "used".
+- False Positives (FP): Instances incorrectly classified as "new".
+- False Negatives (FN): Instances incorrectly classified as "used".
+
+These classification cases form the basis for assessing the performance of the models in predicting item conditions within the marketplace.
+
+**Accuracy:** it will be the primary evaluation metric, as required by the task, measures the proportion of correct predictions overall. It indicates the model's ability to correctly classify items as new or used.
+
+In the context of our project, accuracy can be interpreted as the percentage of items correctly identified as either new or used. A higher accuracy implies that the model is making more correct predictions.
+
+$$Accuracy = \frac{{TP + TN}}{{TP + TN + FP + FN}}$$
+
+**F1 score:** is another crucial metric that provides a balance between precision and recall. In our project, F1 score serves as a complementary metric to accuracy. While accuracy is important, it may not be the best metric when classes are imbalanced. F1 score considers both false positives and false negatives, making it suitable for evaluating models in scenarios where the class distribution is uneven. This balanced evaluation is particularly crucial for our project, where we observed slight class imbalances within the dataset.
+
+In our project, the F1 score represents how well the model balances correctly identifying both new and used items, while also considering false positives and false negatives.
+
+$$F1 Score = 2 \times \frac{{Precision \times Recall}}{{Precision + Recall}}$$
+
+**AUC:** 
+The Area Under the Curve (AUC) is a metric commonly used to evaluate the performance of classification models by summarizing their performance across various threshold settings. A higher AUC indicates better discrimination between positive and negative classes, with a perfect classifier achieving an AUC of 1.0.
+
+In our project, AUC will be used as an auxiliary measure to compare the performance of different models. By examining the AUC values for each model, we can assess their ability to distinguish between new and used items, aiding in the selection of the most effective model for our marketplace classification task.
+
+### Auxiliary Evaluation Metrics
+Given the ambiguity regarding the equivalence of misclassification costs between labeling a new item as used and vice versa, it's necessary to evaluate both scenarios independently. This highlights the importance of utilizing auxiliary metrics to comprehensively assess the model's performance. Metrics such as Precision, Sensitivity, NPV, and Specificity provide insights into the model's ability to handle each classification case effectively. Such an approach ensures a more nuanced evaluation, facilitating informed decisions regarding the model's suitability for deployment within the marketplace context.
+
+**Precision:** measures the proportion of true positive predictions among all positive predictions made by the model. It indicates the model's ability to accurately classify items, especially in scenarios where misclassifying an item as new when it is actually used can have significant consequences.
+
+In the context of our project, precision can be interpreted as the percentage of items identified as new that are actually new. A higher precision implies that the model is making fewer false positive predictions, ensuring that the items classified as new are indeed new.
+
+$$Precision = \frac{{TP}}{{TP + FP}} $$
+
+**NPV (Negative Predictive Value):** assesses the proportion of true negative predictions among all negative predictions made by the model. It indicates the model's ability to accurately classify items, particularly in scenarios where misclassifying an item as used when it is actually new can have significant consequences.
+
+In the context of our project, NPV can be interpreted as the percentage of items identified as used that are actually used. A higher NPV implies that the model is making fewer false negative predictions, ensuring that the items classified as used are indeed used.
+
+$$NPV = \frac{{TN}}{{TN + FN}}$$
+
+**Sensitivity (True Positive Rate):** measures the proportion of true positive predictions among all actual positive instances. It indicates the model's ability to correctly identify items as new when they are actually new.
+
+In the context of our project, sensitivity can be interpreted as the percentage of actual new items that are correctly identified as new by the model. A higher sensitivity implies that the model is better at capturing true new items, minimizing the number of false negatives.
+
+$$Sensitivity = \frac{{TP}}{{TP + FN}}$$
+
+**Specificity (True Negative Rate):** measures the proportion of true negative predictions among all actual negative instances. It indicates the model's ability to correctly identify items as used when they are actually used.
+
+In the context of our project, specificity can be interpreted as the percentage of actual used items that are correctly identified as used by the model. A higher specificity implies that the model is better at capturing true used items, minimizing the number of false positives.
+
+$$Specificity = \frac{{TN}}{{TN + FP}}$$
+
+# Results
+
+# Areas for Future Development
+Within our project, we have identified several areas for improvement and alternative approaches to address the underlying challenge. These opportunities encompass potential enhancements in methodologies, explorations of additional data sources, and the consideration of alternative modeling techniques. Regrettably, due to the constraints imposed by time and resources, these avenues were not pursued. Nevertheless, recognizing their potential significance, we acknowledge them as avenues for future exploration and refinement.
+
+# Workflow 
+Here is the workflow for our project, outlining the systematic approach taken to predict whether marketplace items are new or used. This encompasses stages such as data preprocessing, feature engineering, model selection and evaluation. Each stage contributes to the development of a reliable machine learning solution, ensuring accuracy and interpretability in categorizing marketplace items.
+# 1. Load Data
+
 ```python
 import random
 import pandas as pd
@@ -1880,3 +1953,905 @@ y_test_scaled.to_csv("../data/processed/test_target.csv", index=False)
 Furthermore, to streamline the data processing task, an implementation of the function `process_dataset()` has been developed and is located at path `src/features/data_process.py`. This function encapsulates all necessary steps for data processing, including scaling, encoding, and transformation, thereby simplifying the overall workflow and enhancing efficiency.
 
 # 4. Models
+## 4.1 Model Construction Overview
+In this section, we provide an overview of the functions used to construct and evaluate various models, aiming to simplify the understanding of the model-building process. We'll present a brief explanation of each function to ensure clarity and ease of comprehension. This approach will streamline the model evaluation process by separating it from the detailed code implementation.
+
+### 4.1.1 import_data()
+The function `import_data()` imports training and testing data from CSV files and returns them as pandas DataFrames.
+```python
+def import_data():
+    """
+    Import data for training and testing.
+
+    Args:
+
+    Returns:
+    - X_train (DataFrame): Training data features.
+    - y_train (DataFrame): Training data labels.
+    - X_test (DataFrame): Testing data features.
+    - y_test (DataFrame): Testing data labels.
+    """
+
+    X_train = pd.read_csv(f"../data/processed/train_data.csv")
+    y_train = pd.read_csv(f"../data/processed/train_target.csv")
+
+    X_test = pd.read_csv(f"../data/processed/test_data.csv")
+    y_test = pd.read_csv(f"../data/processed/test_target.csv")
+
+    return X_train, y_train, X_test, y_test
+```
+### 4.1.2 find_best_threshold()
+The function `find_best_threshold()` calculates the best threshold on the ROC curve by maximizing the difference between true positive rate (tpr) and false positive rate (fpr). It then returns this optimal threshold along with the corresponding accuracy score.
+```python
+def find_best_threshold(fpr, tpr, thresholds, y_test, y_prob):
+    """
+    Find the best threshold on ROC curve.
+
+    Args:
+        fpr (array-like): Array containing the false positive rates.
+        tpr (array-like): Array containing the true positive rates.
+        thresholds (array-like): Array containing the thresholds.
+        y_test (array-like): Array containing true labels.
+        y_prob (array-like): Array containing predicted probabilities.
+
+    Returns:
+        float: Best threshold and corresponding maximizing accuracy.
+    """
+    best_threshold = thresholds[np.argmax(tpr - fpr)]
+    y_pred = np.where(y_prob >= best_threshold, 1, 0)
+    y_test = np.squeeze(y_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    return best_threshold, accuracy
+```
+### 4.1.3 plot_roc_curve_and_accuracy()
+The `plot_roc_curve_and_accuracy()` function plots the ROC curve with the AUC value and the accuracy versus threshold.
+```python
+def plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_test, y_prob, title="",title_font_size=16):
+    """
+    Plot ROC curve and accuracy vs. threshold.
+
+    Parameters:
+        fpr (array-like): Array containing the false positive rates.
+        tpr (array-like): Array containing the true positive rates.
+        auc (float): Area under the ROC curve (AUC) value.
+        thresholds (array-like): Array containing the thresholds.
+        y_test (array-like): Array containing true labels.
+        y_prob (array-like): Array containing predicted probabilities.
+
+    Returns:
+        None (displays the plot).
+    """
+    plt.figure(figsize=(12, 5))
+    plt.suptitle(title, fontsize=title_font_size) 
+    
+    plt.subplot(1, 2, 1)
+    plt.plot(fpr, tpr, lw=2, label='ROC curve (AUC = %0.2f)' % auc)
+    plt.plot([0, 1], [0, 1], color='gray', linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic (ROC) Curve')
+    plt.legend(loc="lower right")
+
+    best_threshold, best_accuracy = find_best_threshold(fpr, tpr, thresholds, y_test, y_prob)
+    accuracies = [accuracy_score(y_test, np.where(y_prob >= th, 1, 0)) for th in thresholds]
+    plt.subplot(1, 2, 2)
+    plt.plot(thresholds, accuracies, color='blue', lw=2, label='Accuracy')
+    plt.axvline(x=best_threshold, color='red', linestyle='--', label='Best Threshold')
+    plt.xlabel('Threshold')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy vs. Threshold')
+    plt.legend(loc="lower right")
+
+    plt.ylim(0, 1)
+    plt.yticks(np.arange(0, 1.1, 0.1))
+    plt.xlim(0, 1)
+    plt.xticks(np.arange(0, 1.1, 0.1))
+
+    text = f'Best Threshold: {best_threshold:.2f}\nBest Accuracy: {best_accuracy:.2f}'
+    plt.text(0.05, 0.05, text, fontsize=10, transform=plt.gca().transAxes, bbox=dict(facecolor='white', alpha=0.5))
+
+    plt.tight_layout()
+    plt.show()
+```
+### 4.1.4 predict_classification()
+The `predict_classification()` function predicts labels using a trained classification model and optionally prints evaluation metrics. It offers the flexibility to specify an optimal threshold for binary classification and returns the predicted labels.
+
+```python
+def predict_classification(model, X_test, y_test, optimal_threshold=0.5, print_results=False):
+    """
+    Predict labels using a classification model and optionally print evaluation metrics.
+
+    Args:
+        model (object): The trained classification model.
+        X_test (array-like): Test features.
+        y_test (array-like): True labels for the test set.
+        optimal_threshold (float, optional): Threshold for binary classification. Default is 0.5.
+        print_results (bool, optional): Whether to print evaluation metrics. Default is False.
+
+    Returns:
+        y_pred (array-like): Predicted labels.
+
+    Prints:
+        If print_results is True, evaluation metrics including Accuracy, F1 score, Precision, NVP, Sensitivity, and Specificity.
+    """
+    y_prob_test = model.predict_proba(X_test)[:, 1]
+    y_pred = np.where(y_prob_test >= optimal_threshold, 1, 0)
+
+    if print_results:
+        accuracy_value = accuracy_score(y_test, y_pred)
+        f1_score_value = f1_score(y_test, y_pred)
+        precision_value = precision_score(y_test, y_pred)
+        npv_value = npv_score(y_test, y_pred)
+        sensitivity_value = recall_score(y_test, y_pred)
+        specificity_value = specificity_score(y_test, y_pred)
+
+        results = {
+            "Accuracy": accuracy_value,
+            "F1 score": f1_score_value,
+            "Precision": precision_value,
+            "NVP": npv_value,
+            "Sensitivity": sensitivity_value,
+            "Specificity": specificity_value
+        }
+        
+        print("Evaluation metrics:")
+        for metric, value in results.items():
+            print(f"{metric:<12}:\t{value:.3f}")
+
+    return y_pred
+```
+### 4.1.5 plot_confusion_matrix()
+
+The `plot_confusion_matrix()` function generates a heatmap visualization of the confusion matrix based on true and predicted labels.
+
+```python
+def plot_confusion_matrix(y_true, y_pred, normalize=False, labels=None, show_colorbar=True):
+    """
+    Function to plot a confusion matrix.
+
+    Args:
+    - y_true: numpy array, true values.
+    - y_pred: numpy array, predicted values.
+    - normalize: bool, whether to normalize the confusion matrix or not.
+    - labels: list of strings, labels for classes.
+    - show_colorbar: bool, whether to show colorbar or not.
+    """
+    conf_matrix = confusion_matrix(y_true, y_pred)
+    if labels is None:
+        labels = np.unique(y_true)
+    
+    if normalize:
+        conf_matrix = conf_matrix.astype('float') / conf_matrix.sum(axis=1)[:, np.newaxis]
+
+    plt.figure(figsize=(8, 6))
+    sns.set(font_scale=1.2)  
+
+    sns.heatmap(conf_matrix, annot=True, fmt='.2f' if normalize else 'd', cmap='Blues', 
+                xticklabels=labels, yticklabels=labels, vmin=0, vmax=1 if normalize else None, cbar=show_colorbar)
+
+    plt.xlabel('Predicted Class')
+    plt.ylabel('True Class')
+    plt.title('Confusion Matrix')
+    plt.show()
+```
+
+
+
+## 4.2 Logistic Regression
+### 4.2.1 Import Libraries
+
+```python
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_curve, roc_auc_score
+from src.features.functions import import_data,find_best_threshold, optimize_threshold_for_accuracy, predict_classification
+from src.features.plots import plot_confusion_matrix,plot_roc_curve_and_accuracy
+```
+### 4.2.2 Import Data
+```python
+X_train, y_train, X_test, y_test = import_data()
+```
+### 4.2.3 Model Initialization and Fitting
+```python
+model = LogisticRegression()
+model.fit(X_train, y_train)
+```
+### 4.2.4 Evaluation of ROC and AUC
+```python
+y_prob_val = model.predict_proba(X_val)[:, 1]
+fpr, tpr, thresholds = roc_curve(y_val, y_prob_val)
+auc = roc_auc_score(y_val, y_prob_val)
+best_threshold, threshold_accuracy = find_best_threshold(fpr, tpr, thresholds, y_val, y_prob_val)
+```
+--------
+
+```python
+plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_val, y_prob_val, "Logistic Regression - Validation data")
+```
+*Output:*
+
+![Binary countplot](images/4_2_4.png)
+
+------------
+
+```python
+optimal_threshold, optimal_accuracy = optimize_threshold_for_accuracy(y_val, y_prob_val)
+print(f"Optimal Threshold: {optimal_threshold:.3}, Accuracy: {optimal_accuracy:.3}")
+```
+*Output:*
+```python
+Optimal Threshold: 0.475, Accuracy: 0.826
+```
+------------
+### 4.2.5 Evaluation of Performance Metrics
+------------
+
+```python
+y_pred = predict_classification(model,X_test,y_test,optimal_threshold,True)
+```
+*Output:*
+```python
+Evaluation metrics:
+Accuracy    :	0.831
+F1 score    :	0.841
+Precision   :	0.851
+NVP         :	0.831
+Sensitivity :	0.831
+Specificity :	0.831
+```
+------------
+
+### 4.2.6 Confusion Matrix
+------------
+
+```python
+plot_confusion_matrix(y_test, y_pred,False,["Used","New"])
+```
+*Output:*
+
+![Binary countplot](images/4_2_6.png)
+
+------------
+
+## 4.3 Random Forest
+### 4.3.1 Import Libraries
+
+```python
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_curve, roc_auc_score
+from src.features.functions import import_data,find_best_threshold, optimize_threshold_for_accuracy, predict_classification
+from src.features.plots import plot_confusion_matrix,plot_roc_curve_and_accuracy
+```
+### 4.3.2 Import Data
+```python
+X_train, y_train, X_test, y_test = import_data()
+```
+### 4.3.3 Model Initialization and Fitting
+```python
+model = RandomForestClassifier(n_estimators=100)
+model.fit(X_train, y_train)
+```
+### 4.3.4 Evaluation of ROC and AUC
+```python
+y_prob_val = model.predict_proba(X_val)[:, 1]
+fpr, tpr, thresholds = roc_curve(y_val, y_prob_val)
+auc = roc_auc_score(y_val, y_prob_val)
+best_threshold, threshold_accuracy = find_best_threshold(fpr, tpr, thresholds, y_val, y_prob_val)
+```
+--------
+
+```python
+plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_val, y_prob_val, "XGBoost - Validation data")
+```
+*Output:*
+
+![Binary countplot](images/4_3_4.png)
+
+------------
+
+```python
+optimal_threshold, optimal_accuracy = optimize_threshold_for_accuracy(y_val, y_prob_val)
+print(f"Optimal Threshold: {optimal_threshold:.3}, Accuracy: {optimal_accuracy:.3}")
+```
+*Output:*
+```python
+Optimal Threshold: 0.505, Accuracy: 0.842
+```
+------------
+### 4.3.5 Evaluation of Performance Metrics
+------------
+
+```python
+y_pred = predict_classification(model,X_test,y_test,optimal_threshold,True)
+```
+*Output:*
+```python
+Evaluation metrics:
+Accuracy    :	0.843
+F1 score    :	0.853
+Precision   :	0.863
+NVP         :	0.845
+Sensitivity :	0.842
+Specificity :	0.845
+```
+------------
+
+### 4.3.6 Confusion Matrix
+------------
+
+```python
+plot_confusion_matrix(y_test, y_pred,False,["Used","New"])
+```
+*Output:*
+
+![Binary countplot](images/4_3_6.png)
+
+------------
+
+## 4.4 XGBoost
+### 4.4.1 Import Libraries
+
+```python
+import pandas as pd
+import xgboost as xgb
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_curve, roc_auc_score
+from src.features.functions import import_data,find_best_threshold, optimize_threshold_for_accuracy, predict_classification
+from src.features.plots import plot_confusion_matrix,plot_roc_curve_and_accuracy
+```
+### 4.4.2 Import Data
+```python
+X_train, y_train, X_test, y_test = import_data()
+```
+### 4.4.3 Model Initialization and Fitting
+```python
+model = xgb.XGBClassifier(objective ='binary:logistic',)
+model.fit(X_train, y_train)
+```
+### 4.4.4 Evaluation of ROC and AUC
+```python
+y_prob_val = model.predict_proba(X_val)[:, 1]
+fpr, tpr, thresholds = roc_curve(y_val, y_prob_val)
+auc = roc_auc_score(y_val, y_prob_val)
+best_threshold, threshold_accuracy = find_best_threshold(fpr, tpr, thresholds, y_val, y_prob_val)
+```
+--------
+
+```python
+plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_val, y_prob_val, "Random Forest - Validation data")
+```
+*Output:*
+
+![Binary countplot](images/4_4_4.png)
+
+------------
+
+```python
+optimal_threshold, optimal_accuracy = optimize_threshold_for_accuracy(y_val, y_prob_val)
+print(f"Optimal Threshold: {optimal_threshold:.3}, Accuracy: {optimal_accuracy:.3}")
+```
+*Output:*
+```python
+Optimal Threshold: 0.556, Accuracy: 0.847
+```
+------------
+### 4.4.5 Evaluation of Performance Metrics
+------------
+
+```python
+y_pred = predict_classification(model,X_test,y_test,optimal_threshold,True)
+```
+*Output:*
+```python
+Evaluation metrics:
+Accuracy    :	0.851
+F1 score    :	0.854
+Precision   :	0.897
+NVP         :	0.891
+Sensitivity :	0.815
+Specificity :	0.891
+```
+------------
+
+### 4.4.6 Confusion Matrix
+------------
+
+```python
+plot_confusion_matrix(y_test, y_pred,False,["Used","New"])
+```
+*Output:*
+
+![Binary countplot](images/4_4_6.png)
+
+------------
+
+## 4.5 Neural Network
+### 4.5.1 Import Libraries
+
+```python
+import pandas as pd
+from src.features.neural_networks import ModelFC, PyTorchWrapper
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_curve, roc_auc_score
+from src.features.functions import import_data,find_best_threshold, optimize_threshold_for_accuracy, predict_classification
+from src.features.plots import plot_confusion_matrix,plot_roc_curve_and_accuracy
+```
+### 4.5.2 Import Data
+```python
+X_train, y_train, X_test, y_test = import_data()
+```
+### 4.5.3 Model Initialization and Fitting
+```python
+model_torch = ModelFC(len(X_train.columns),len(y_train.columns),[8,8,8],0.5)
+model = PyTorchWrapper(model_torch,num_epochs=10)
+model.fit(X_train, y_train)
+```
+```python
+model.model.plot_training()
+```
+*Output:*
+
+![Binary countplot](images/4_5_4-1.png)
+
+------------
+### 4.5.4 Evaluation of ROC and AUC
+```python
+y_prob_val = model.predict_proba(X_val)[:, 1]
+fpr, tpr, thresholds = roc_curve(y_val, y_prob_val)
+auc = roc_auc_score(y_val, y_prob_val)
+best_threshold, threshold_accuracy = find_best_threshold(fpr, tpr, thresholds, y_val, y_prob_val)
+```
+--------
+
+```python
+plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_val, y_prob_val, "Neural Network - Validation data")
+```
+*Output:*
+
+![Binary countplot](images/4_5_4.png)
+
+------------
+
+```python
+optimal_threshold, optimal_accuracy = optimize_threshold_for_accuracy(y_val, y_prob_val)
+print(f"Optimal Threshold: {optimal_threshold:.3}, Accuracy: {optimal_accuracy:.3}")
+```
+*Output:*
+```python
+Optimal Threshold: 0.556, Accuracy: 0.802
+```
+------------
+### 4.5.5 Evaluation of Performance Metrics
+------------
+
+```python
+y_pred = predict_classification(model,X_test,y_test,optimal_threshold,True)
+```
+*Output:*
+```python
+Evaluation metrics:
+Accuracy    :	0.806
+F1 score    :	0.813
+Precision   :	0.843
+NVP         :	0.831
+Sensitivity :	0.785
+Specificity :	0.831
+```
+------------
+
+### 4.5.6 Confusion Matrix
+------------
+
+```python
+plot_confusion_matrix(y_test, y_pred,False,["Used","New"])
+```
+*Output:*
+
+![Binary countplot](images/4_5_6.png)
+
+------------
+
+## 4.6 Ensamble
+### 4.6.1 Import Libraries
+
+```python
+import pandas as pd
+import xgboost as xgb
+import torch.optim as optim
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import VotingClassifier
+from src.features.neural_networks import ModelFC, PyTorchWrapper
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_curve, roc_auc_score
+from src.features.functions import import_data,find_best_threshold, optimize_threshold_for_accuracy, predict_classification
+from src.features.plots import plot_confusion_matrix,plot_roc_curve_and_accuracy
+```
+### 4.6.2 Import Data
+```python
+X_train, y_train, X_test, y_test = import_data()
+```
+### 4.6.3 Model Initialization and Fitting
+------------
+```python
+logistic_regression_model = LogisticRegression()
+random_forest_model = RandomForestClassifier(n_estimators=100)
+xgboost_model =xgb.XGBClassifier()
+torch_model = ModelFC(len(X_train.columns),len(y_train.columns),[8,8,8],0.5)
+optimizer = optim.Adam(torch_model.parameters(),lr=0.001,weight_decay=0.001)
+neural_network_model = PyTorchWrapper(torch_model,num_epochs=20)
+
+model = VotingClassifier(estimators=[
+    ('logistic_regression', logistic_regression_model),
+    ('random_forest', random_forest_model),
+    ('xgboost', xgboost_model),
+    ('neural_network', neural_network_model),
+], voting='soft')  
+
+model.fit(X_train, y_train)
+```
+*Output:*
+
+![Binary countplot](images/4_6_3.png)
+
+------------
+### 4.6.4 Evaluation of ROC and AUC
+```python
+y_prob_val = model.predict_proba(X_val)[:, 1]
+fpr, tpr, thresholds = roc_curve(y_val, y_prob_val)
+auc = roc_auc_score(y_val, y_prob_val)
+best_threshold, threshold_accuracy = find_best_threshold(fpr, tpr, thresholds, y_val, y_prob_val)
+```
+--------
+
+```python
+plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_val, y_prob_val, "Random Forest - Validation data")
+```
+*Output:*
+
+![Binary countplot](images/4_6_4.png)
+
+------------
+
+```python
+optimal_threshold, optimal_accuracy = optimize_threshold_for_accuracy(y_val, y_prob_val)
+print(f"Optimal Threshold: {optimal_threshold:.3}, Accuracy: {optimal_accuracy:.3}")
+```
+*Output:*
+```python
+Optimal Threshold: 0.556, Accuracy: 0.847
+```
+------------
+### 4.6.5 Evaluation of Performance Metrics
+------------
+
+```python
+y_pred = predict_classification(model,X_test,y_test,optimal_threshold,True)
+```
+*Output:*
+```python
+Evaluation metrics:
+Accuracy    :	0.854
+F1 score    :	0.862
+Precision   :	0.878
+NVP         :	0.864
+Sensitivity :	0.847
+Specificity :	0.864
+```
+------------
+
+### 4.6.6 Confusion Matrix
+------------
+
+```python
+plot_confusion_matrix(y_test, y_pred,False,["Used","New"])
+```
+*Output:*
+
+![Binary countplot](images/4_6_6.png)
+
+------------
+
+# Appendix
+
+## PuntualDataset
+
+The `PuntualDataset` class is a custom dataset implementation designed for handling tabular data. It encapsulates the functionality required to prepare features and target data for training and inference in PyTorch models. The class converts input features and target data into torch tensors and provides methods to retrieve samples from the dataset by index
+
+```python
+class PuntualDataset(Dataset):
+    """
+    Custom dataset class for handling tabular data.
+
+    This class encapsulates the functionality required to prepare tabular data for training and inference
+    in PyTorch models.
+
+    Args:
+        X (array-like or DataFrame): Features data.
+        y (array-like or Series): Target data.
+
+    Attributes:
+        X (Tensor): Features tensor converted to torch.float32.
+        y (Tensor): Target tensor converted to torch.float32.
+    """
+    def __init__(self, X, y):
+        if isinstance(X, np.ndarray):
+            self.X = torch.tensor(X, dtype=torch.float32)
+        else:
+            self.X = torch.tensor(X.values, dtype=torch.float32)
+        
+        if isinstance(y, np.ndarray):
+            self.y = torch.tensor(y, dtype=torch.float32)
+        else:
+            self.y = torch.tensor(y.values, dtype=torch.float32)
+        
+    def __len__(self):
+        return len(self.X)
+    
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
+```
+## ModelFC
+The `ModelFC` class represents a fully connected neural network model tailored for classification tasks. It is designed to accept input features and output predictions across a specified number of categories. This model architecture includes fully connected layers with optional dropout regularization. Additionally, it provides methods for training, validation, and plotting of training curves, enhancing its utility for model development and evaluation.
+```python
+class ModelFC(nn.Module):
+    """
+    Fully connected neural network model for classification.
+
+    Args:
+        input_size (int): Number of features.
+        output_size (int): Number of categories.
+        fc_hidden_sizes (list, optional): Number of hidden sizes per fully connected (fc) layer. Default is [1].
+        fc_dropout (float, optional): Dropout probability after each fc layer. Default is 0.2.
+
+    Attributes:
+        name (str): Model name.
+        input_size (int): Number of features.
+        output_size (int): Number of categories.
+        fc_hidden_sizes (list): Number of hidden sizes per fc layer.
+        fc_dropout (float): Dropout probability after each fc layer.
+        activation (torch.nn.Module): Activation function (Sigmoid).
+        layers (torch.nn.Sequential): Sequential container for fc layers.
+
+    Methods:
+        forward(x): Forward pass through the model.
+        train_validation(train_loader, val_loader, criterion, optimizer, num_epochs=10): Train and validate the model.
+        train_model(train_loader, criterion, optimizer, num_epochs=10): Train the model.
+        _train_step(train_loader, criterion, optimizer): Perform a single training step.
+        _validation_step(val_loader, criterion): Perform a single validation step.
+        plot_training(save_path=""): Plot training curves.
+
+    """
+    def __init__(self,
+                 input_size, # Number of features
+                 output_size, # Number of categories
+                 fc_hidden_sizes=[1], # Number of hidden sizes per fc layer
+                 fc_dropout=0.2, # Dropout probability after each fc layer
+                 ):
+        super(ModelFC, self).__init__()
+        self.name = 'FC'
+        self.device = DEVICE
+        self.input_size = input_size
+        self.output_size = output_size
+        self.fc_hidden_sizes = fc_hidden_sizes
+        self.fc_dropout = fc_dropout
+        self.activation = nn.Sigmoid()
+
+        layers = []
+
+        fc_input_size = self.input_size
+        for fc_hidden_size in self.fc_hidden_sizes:
+            if fc_hidden_size <= 0:
+                raise ValueError("hidden_size must be greater than 0")
+            layers.append(nn.Linear(fc_input_size, fc_hidden_size))
+            layers.append(nn.ReLU())
+            layers.append(nn.Dropout(p=self.fc_dropout))
+            fc_input_size = fc_hidden_size
+
+
+        layers.append(nn.Linear(fc_input_size, self.output_size))
+        self.layers = nn.Sequential(*layers)
+
+    def forward(self, x):
+        x = self.layers(x)
+        x = self.activation(x)
+
+        return x
+        
+    def train_validation(self, train_loader, val_loader, criterion, optimizer, num_epochs=10):
+        self.to(self.device)
+
+        results = {"train_loss": [],"val_loss": []}
+
+        if not hasattr(self, "results"):
+            setattr(self, "results", results)
+
+        for epoch in range(num_epochs):
+            start_time = timer() 
+            train_loss = self._train_step(train_loader, criterion, optimizer)
+            val_loss = self._validation_step(val_loader, criterion)
+            end_time = timer()
+            
+            self.results["train_loss"].append(train_loss)
+            self.results["val_loss"].append(val_loss)
+
+            clear_output(wait=True)
+            print(f'| Epoch [{epoch+1}/{num_epochs}] | Time: {end_time-start_time:.1f} |\n'
+                  f'| Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} |\n')
+
+            
+            self.plot_training()
+
+    def train_model(self, train_loader, criterion, optimizer, num_epochs=10):
+        self.to(self.device)
+
+        results = {"train_loss": [], "val_loss": []} 
+
+        if not hasattr(self, "results"):
+            setattr(self, "results", results)
+
+        for _ in range(num_epochs):
+
+            train_loss = self._train_step(train_loader, criterion, optimizer)
+            val_loss = None
+
+            self.results["train_loss"].append(train_loss)
+            self.results["val_loss"].append(val_loss)
+
+
+
+    def _train_step(self, train_loader, criterion, optimizer):
+        self.train()  # Set the model to training mode
+
+        running_loss = 0.0
+
+        for inputs, labels in train_loader:
+            inputs, labels = inputs.to(self.device), labels.to(self.device)
+
+            optimizer.zero_grad()
+            outputs = self(inputs)
+            if outputs.size() != labels.size():
+                outputs = outputs.squeeze()
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item()
+
+        epoch_loss = running_loss / len(train_loader.dataset)
+
+        return epoch_loss
+
+    def _validation_step(self, val_loader, criterion):
+        self.eval()  # Set the model to evaluation mode
+
+        running_loss = 0.0
+
+        with torch.no_grad():
+            for inputs, labels in val_loader:
+                inputs, labels = inputs.to(self.device), labels.to(self.device)
+
+                outputs = self(inputs)
+                loss = criterion(outputs, labels)
+
+                running_loss += loss.item()
+
+        epoch_loss = running_loss / len(val_loader.dataset)
+
+        return epoch_loss
+    
+
+    
+    def plot_training(self, save_path: str = ""):
+        """
+        Plots training curves of a results dictionary.
+
+        Args:
+            results (dict): dictionary containing list of values, e.g.
+                {"train_loss": [...],
+                "val_loss": [...]}
+            save_path (str): path to save the plot as PNG
+        """
+        results = self.results
+
+        loss = results['train_loss']
+        val_loss = results['val_loss']
+
+        epochs = range(len(results['train_loss']))
+
+        plt.figure(figsize=(5, 5))
+        plt.plot(epochs, loss, label='train_loss')
+        plt.plot(epochs, val_loss, label='val_loss')
+        plt.title('Loss')
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.legend()
+
+        if save_path:
+            plt.savefig(save_path)
+        else:
+            plt.show()
+```
+
+# PyTorchWrapper
+The `PyTorchWrapper` class offers a versatile solution for seamlessly integrating PyTorch models into scikit-learn pipelines, specifically tailored for classification tasks. It simplifies training, prediction, and probability estimation processes.
+
+```python
+class PyTorchWrapper(BaseEstimator, ClassifierMixin):
+    """
+    A wrapper class for PyTorch models designed for classification tasks.
+
+    Args:
+        model (nn.Module): PyTorch model to be wrapped.
+        criterion (torch.nn.Module, optional): Loss function used for optimization. Default is nn.BCELoss().
+        optimizer (torch.optim.Optimizer, optional): Optimizer used for training. Default is Adam optimizer.
+        learning_rate (float, optional): Learning rate for optimizer. Default is 0.001.
+        weight_decay (float, optional): Weight decay (L2 penalty) for optimizer. Default is 0.001.
+        num_epochs (int, optional): Number of training epochs. Default is 10.
+
+    Attributes:
+        model (nn.Module): PyTorch model to be wrapped.
+        criterion (torch.nn.Module): Loss function used for optimization.
+        learning_rate (float): Learning rate for optimizer.
+        weight_decay (float): Weight decay (L2 penalty) for optimizer.
+        optimizer_class (torch.optim.Optimizer): Optimizer class used for training.
+        num_epochs (int): Number of training epochs.
+        threshold (float): Threshold value for binary classification predictions.
+
+    Methods:
+        fit(X, y): Fit the model to the training data.
+        predict(X): Generate class predictions for the input data.
+        predict_proba(X): Generate probability estimates for class predictions.
+    """
+    def __init__(self, model, criterion=nn.BCELoss(), optimizer=None, learning_rate=0.001, weight_decay=0.001, num_epochs=10):
+        self.model = model
+        self.criterion = criterion
+        self.learning_rate = learning_rate
+        self.weight_decay = weight_decay
+        self.optimizer_class = optimizer
+        self.num_epochs = num_epochs
+        self.threshold = 0.5
+        if optimizer is None:
+            self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+        else:
+            self.optimizer = optimizer
+            
+    def fit(self, X, y):
+        dataset = PuntualDataset(X, y)
+        train_loader = DataLoader(dataset, batch_size=32, shuffle=True)
+
+        self.model.train_model(train_loader, self.criterion, self.optimizer, self.num_epochs)
+        return self
+
+    def predict(self, X):
+        device = self.model.device
+        dataset = PuntualDataset(X, pd.Series([0] * len(X)))  
+        data_loader = DataLoader(dataset, batch_size=32, shuffle=False)
+
+        predictions = []
+        with torch.no_grad():
+            for inputs, _ in data_loader:
+                inputs = inputs.to(device)
+                outputs = self.model(inputs)
+                predictions.extend(outputs.cpu().numpy())
+
+        return (np.array(predictions) > self.threshold).astype(int)  
+
+    def predict_proba(self, X):
+        device = self.model.device
+        dataset = PuntualDataset(X, pd.Series([0] * len(X)))  
+        data_loader = DataLoader(dataset, batch_size=32, shuffle=False)
+
+        probabilities = []
+        with torch.no_grad():
+            for inputs, _ in data_loader:
+                inputs = inputs.to(device)
+                outputs = self.model(inputs)
+                probabilities.extend(outputs.cpu().numpy())
+
+        probabilities = np.array(probabilities)
+        return np.hstack((1 - probabilities, probabilities))
+```
