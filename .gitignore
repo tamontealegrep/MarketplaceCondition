@@ -1,6 +1,6 @@
 *.pyc
 *.docx
 *.egg-info/
+*.jsonlines
 __pycache__/
 backups/
-data/

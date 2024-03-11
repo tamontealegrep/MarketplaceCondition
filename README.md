@@ -4,20 +4,26 @@ Project Organization
 ------------
 
     ├── LICENSE
-    ├── README.md          <- The top-level README for developers using this project.
+    ├── README.md                   <- This document outlines the project workflow project.
     ├── data
-    │   ├── processed      <- The final, canonical data sets.
-    │   ├── staging        <- Intermediate data that has been transformed.
-    │   └── raw            <- The original MLA_100k_checked_v3.jsonlines.
+    │   ├── processed               <- The final, canonical data sets.
+    │   ├── staging                 <- Intermediate data that has been transformed.
+    │   └── raw                     <- The original MLA_100k_checked_v3.jsonlines.
     │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries.
+    ├── src                         <- Contains the all source code files.
+    │   └── features                <- Contains source code files related with features of the code.
+    │       ├── data_preprocess.py  <- Code related to preprocess od the data.
+    │       ├── data_process.py     <- Code related to process od the data.
+    │       ├── functions.py        <- Code related to general functions.
+    │       ├── neural_networks.py  <- Code related to the cration, training and evaluation of neural networks.
+    │       ├── new_or_used.py      <- Code related to read MLA_100k_checked_v3.jsonlines dataset.
+    │       └── plots.py            <- Code related to plot.
     │
-    ├── notebooks          <- Jupyter notebooks with steps for training and evaluating models.
+    ├── notebooks                   <- Jupyter notebooks with steps for data preprocessing, data processing, data exploration analisys, training and evaluating models.
     │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
+    ├── images                      <- Generated images used in this document.
     │
-    └── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
+    └── requirements.txt            <- The requirements file for reproducing the analysis environment, e.g.
 
 --------
 
@@ -105,12 +111,116 @@ In the context of our project, specificity can be interpreted as the percentage 
 
 $$Specificity = \frac{{TN}}{{TN + FP}}$$
 
+By selecting these auxiliary metrics, we ensure a comprehensive evaluation of the model's performance beyond simple accuracy. These metrics provide insights into various aspects of the model's behavior, including its ability to handle class imbalances, its precision in predicting positive and negative instances, and its sensitivity to changes in the dataset. Additionally, they allow us to assess the model's robustness and generalization capability across different scenarios. 
+
+**Confusion Matrix as Visual Aid:**
+In addition to the numerical metrics, we will utilize the confusion matrix as a graphical aid to complement our evaluation. The confusion matrix provides a concise visual representation of the model's performance across different classes, offering a clear depiction of its ability to correctly classify items. 
+
+# Operational Limits
+The model has been conceived and trained with operational limits in mind. Specifically, it has been tailored to handle sales values in Argentina for products priced up to 50,000 ARS and with an initial quantity of up to 150 products. These limits were not arbitrarily chosen but rather derived from the data, ensuring that at least 98% of the dataset falls within these ranges.
 # Results
+Based on the results, it can be observed that the neural network model exhibited the poorest performance, followed by logistic regression and random forest models. Conversely, XGBoost and the ensemble model demonstrated the best performance, with the ensemble model showing a slightly superior performance.
+
+<table>
+  <tr>
+    <th></th>
+    <th>Logistic Regression</th>
+    <th>Random Forest</th>
+    <th>XGBoost</th>
+    <th>Neural Network</th>
+    <th>Ensembled</th>
+  </tr>
+  <tr>
+    <td>Accuracy</td>
+    <td>0.831</td>
+    <td>0.843</td>
+    <td>0.851</td>
+    <td>0.806</td>
+    <td>0.854</td>
+  </tr>
+  <tr>
+    <td>F1 score</td>
+    <td>0.841</td>
+    <td>0.853</td>
+    <td>0.854</td>
+    <td>0.813</td>
+    <td>0.862</td>
+  </tr>
+  <tr>
+    <td>Precision</td>
+    <td>0.851</td>
+    <td>0.863</td>
+    <td>0.897</td>
+    <td>0.843</td>
+    <td>0.878</td>
+  </tr>
+  <tr>
+    <td>NVP</td>
+    <td>0.831</td>
+    <td>0.845</td>
+    <td>0.891</td>
+    <td>0.831</td>
+    <td>0.864</td>
+  </tr>
+  <tr>
+    <td>Sensitivity</td>
+    <td>0.831</td>
+    <td>0.842</td>
+    <td>0.815</td>
+    <td>0.785</td>
+    <td>0.847</td>
+  </tr>
+  <tr>
+    <td>Specificity</td>
+    <td>0.831</td>
+    <td>0.845</td>
+    <td>0.891</td>
+    <td>0.831</td>
+    <td>0.864</td>
+  </tr>
+  <tr>
+    <td>AUC</td>
+    <td>0.91</td>
+    <td>0.92</td>
+    <td>0.93</td>
+    <td>0.86</td>
+    <td>0.93</td>
+  </tr>
+</table>
+
+Although the accuracy did not reach the desired 86%, achieving a performance of 85.4% with the ensemble model is noteworthy. It is worth mentioning that a performance higher than 86% was achieved under the F1-score metric, which the author considers more suitable due to its handling of the imbalance in categories of the dataset.
+
+The ensemble model emerged as the preferred choice for deployment due to its consistently superior performance across various metrics. With values surpassing 86% for all auxiliary metrics, except sensitivity, the ensemble model showcases robustness and reliability in predicting item conditions accurately within the dataset.
+
+Regarding its classification accuracy, the model effectively distinguishes between new and used items, ensuring their correct categorization. It demonstrates proficiency in identifying used products, capturing the majority of instances within the dataset. However, there's an opportunity for enhancement in correctly identifying new products, as evidenced by a lower sensitivity metric.
+
+The AUC value of 0.93 achieved by the model signifies its exceptional ability to differentiate between positive and negative instances, reflecting a strong discriminatory power. This indicates that in 93% of cases, the model correctly ranks positive instances higher than negative ones. Such performance underscores the model's effectiveness in distinguishing between item conditions.
+
+# Models Interpretability
+In the context of model interpretability, it's essential to note that both logistic regression and random forest models exhibited similar behaviors in assigning importance to certain variables. Notably, features such as `price`, `listing_free`, `listing_bronze`, `listing_silver`, `available_quantity` and `num_pictures` received a realtive high importance scores in both models. The sign of the coefficient in logistic regression allows for the construction of interpretations regarding how these variables influence the prediction of whether a product is new or used.
+
+## Variables
+1. **price:** High prices tend to favor the classification of products as new.
+2. **listing_free:** Sellers categorized as "free" are less likely to offer new products.
+3. **listing_bronze:** Sellers classified as "bronze" are more likely to sell new products.
+4. **listing_silver:** Sellers classified as "silver" are more likely to sell new products.
+5. **available_quantity:** Higher available quantities suggest a higher likelihood of the product being new.
+5. **num_pictures:** An increase in the number of published photos decreases the probability of the product being new.
+
+## Item Condition Characterization
+Based on the outcomes of the models, it becomes feasible to delineate the characteristics of products.
+### New Products
+New products are typically characterized by higher prices and are sold in larger quantities. They are often listed by sellers categorized as "bronze" or "silver," or higher seller levels. Additionally, listings for new products may include fewer photos compared to used products. 
+### Used Products
+Used products are often associated with lower prices and are sold in smaller quantities. They are typically listed by sellers categorized as "free" or with lower seller levels. Listings for used products tend to include a higher number of photos, likely to provide more detail about the condition of the item.
 
 # Areas for Future Development
 Within our project, we have identified several areas for improvement and alternative approaches to address the underlying challenge. These opportunities encompass potential enhancements in methodologies, explorations of additional data sources, and the consideration of alternative modeling techniques. Regrettably, due to the constraints imposed by time and resources, these avenues were not pursued. Nevertheless, recognizing their potential significance, we acknowledge them as avenues for future exploration and refinement.
 
-# Workflow 
+- Exploring the application of Natural Language Processing (NLP) or transformer architectures to analyze the `title` column is an intriguing possibility, aiming to derive embeddings that can be utilized by other models. The `title` column frequently contains valuable information directly indicating whether a product is new or used, serving as a potentially rich source for further analysis.
+
+- Investigating the interpretability of the ensemble model via SHAP (SHapley Additive exPlanations) values presents an intriguing opportunity to gain deeper insights into the inner workings of the model. By leveraging SHAP values, we can elucidate the contribution of each feature to the model's predictions, providing a comprehensive understanding of how different variables influence the classification outcomes. This approach not only enhances our confidence in the model's decisions but also empowers stakeholders to make more informed decisions based on the underlying factors driving the predictions.
+# 0. Workflow 
 Here is the workflow for our project, outlining the systematic approach taken to predict whether marketplace items are new or used. This encompasses stages such as data preprocessing, feature engineering, model selection and evaluation. Each stage contributes to the development of a reliable machine learning solution, ensuring accuracy and interpretability in categorizing marketplace items.
 # 1. Load Data
 
@@ -155,7 +265,7 @@ Unique training columns.: {'condition'}
 df = X_train
 ```
 # 2. Data Preprocessing 
-
+The function `categorize_data_types()` categorizes the data types present in each column of a DataFrame into two categories: 'basic_types', which include commonly used data types such as bool, int, float, str, list, tuple, dict, and NoneType, and 'others', which include any other data types encountered.
 ```python
 def categorize_data_types(df):
     """
@@ -189,6 +299,7 @@ types_df = categorize_data_types(df)
 First, we will focus on working with columns composed of iterable types, as these can be unpacked into multiple lists, thus facilitating data manipulation.
 
 ## 2.1 Unpack dictonary columns
+The function `column_unique_keys()` returns a set of unique keys found within dictionaries in the specified column. Optionally, it also includes keys from dictionaries within a list contained in the column.
 ```python
 def column_unique_keys(column, in_list=False):
     """
@@ -237,6 +348,7 @@ print(f"Unique keys in seller_address: {column_unique_keys(df['seller_address'])
 Unique keys in seller_address: {'country', 'city', 'state'}
 ```
 --------
+ The unpacking of column `seller_address`, new columns `seller_country`, `seller_state` and `seller_city` are created to represent the data in a more specific and structured manner.
 ```python
 # Unpack and delete seller_address 
 df['seller_country'] = df.apply(lambda x : x['seller_address']['country']['name'], axis = 1)
@@ -256,7 +368,7 @@ print(f"Unique keys in shipping: {column_unique_keys(df['shipping'])}")
 Unique keys in shipping: {'mode', 'tags', 'free_methods', 'local_pick_up', 'free_shipping', 'methods', 'dimensions'}
 ```
 --------
-
+The unpacking of column `shipping`, new columns `shipping_dimensions`, `free_shipping`, `local_pick_up`, `shipping_methods`, `shipping_free_methods`,`shipping_mode` and `shipping_tags` are created to represent the data in a more specific and structured manner.
 ```python
 # Unpack and delete shipping
 df['shipping_dimensions'] = df.apply(lambda x : x['shipping'].get('dimensions', None), axis = 1)
@@ -308,6 +420,7 @@ Lengths of shipping_tags {0, 1}
 ```
 --------
 ### 2.2.1 coverage_areas, sub_status, deal_ids, descriptions, shipping_tags and shipping_methods
+The unpacking of columns with lists containing fewer than one item, including `coverage_areas`, `sub_status`, `deal_ids`, `descriptions`, `shipping_tags` and `shipping_methods`, is performed.
 
 ```python
 # Unpack ists with a length of up to 1.
@@ -321,9 +434,11 @@ for column in columns_to_unpack:
 df['descriptions'] = df['descriptions'].apply(lambda x: eval(x) if x is not None else None)
 ```
 ### 2.2.2 shipping_free_methods
+The `shipping_free_methods` column is nearly empty and does not justify unpacking. 
+
 --------
 ```python
-# The 'shipping_free_methods' column is nearly empty and does not justify unpacking. 
+# Unpack 'shipping_free_methods'
 count_column_unique_values(df["shipping_free_methods"])
 ```
 *Output:*
@@ -337,6 +452,7 @@ count_column_unique_values(df["shipping_free_methods"])
 ```
 --------
 ### 2.2.3 tags
+The unpacking of column `tags`, new columns `dragged_bids_and_visits`, `dragged_visits`, `free_relist`, `good_quality_thumbnail` and `poor_quality_thumbnail` are created to represent the data in a more specific and structured manner.
 ```python
 # Unpack tags in boolean columns and delete tags
 unique_tags = set(item for sublist in df['tags'] for item in sublist)
@@ -357,6 +473,7 @@ print(f"Unique keys in non_mercado_pago_payment_methods: {column_unique_keys(df[
 Unique keys in non_mercado_pago_payment_methods: {'id', 'type', 'description'}
 ```
 --------
+The unpacking of the description key in the column `non_mercado_pago_payment_methods`, new columns `Acordar con el comprador`, `American Express`, `Cheque certificado`, `Contra reembolso`, `Diners`, `Efectivo`, `Giro postal`, `MasterCard`, `Mastercard Maestro`, `MercadoPago`, `Tarjeta de crédito`, `Transferencia bancaria`, `Visa`, `Visa Electron` and `accepts_mercadopago` are created to represent the data in a more specific and structured manner.
 ```python
 # Unpack non_mercado_pago_payment_methods in boolean columns and delete non_mercado_pago_payment_methods
 unique_payments = set(item for sublist in df['non_mercado_pago_payment_methods'] for item in sublist)
@@ -377,12 +494,13 @@ print(f"Unique keys in pictures: {column_unique_keys(df['pictures'],True)}")
 Unique keys in pictures: {'max_size', 'quality', 'size', 'secure_url', 'url', 'id'}
 ```
 --------
+A new column called `num_pictures` is created. None of the keys present in the dictionaries on the `pictures` column seem to contain relevant information, and several of them are devoid of any data. However, a potential analysis could involve examining the number of images associated with each product.
 ```python
 # Get the number of pictures of the product.
 df['num_pictures']  = df['pictures'].apply(lambda x: len(x) if isinstance(x, list) else None)
 ```
 ```python
-# Delete pictures. None of the keys present in the dictionaries seem to contain relevant information, and several of them are devoid of any data.
+# Delete pictures.
 df = df.drop(columns=["pictures"])
 ```
 ### 2.2.6 variations
@@ -396,8 +514,10 @@ print(f"Unique keys in variations: {column_unique_keys(df['variations'],True)}")
 Unique keys in variations: {'price', 'attribute_combinations', 'seller_custom_field', 'available_quantity', 'sold_quantity', 'picture_ids', 'id'}
 ```
 --------
+The column `variations` seems to contain irrelevant information, with the majority of its data being represented by None values.
+
 ```python
-# Delete variations. Seems to contain irrelevant information, with the majority of its data being represented by None values.
+# Delete variations. 
 df = df.drop(columns=["variations"])
 ```
 
@@ -412,8 +532,10 @@ print(f"Unique keys in attributes: {column_unique_keys(X_train['attributes'],Tru
 Unique keys in attributes: {'value_name', 'value_id', 'attribute_group_name', 'attribute_group_id', 'name', 'id'}
 ```
 --------
+The column `attributes` seems to contain irrelevant information, with the majority of its data being represented by None values.
+
 ```python
-# Delete attributes. seems to contain irrelevant information, with the majority of its data being represented by None values.
+# Delete attributes. 
 df = df.drop(columns=["attributes"])
 ```
 ## 2.3 Empty columns
@@ -421,6 +543,7 @@ df = df.drop(columns=["attributes"])
 # Update the types of objects present in each column of the dataframe.
 types_df = categorize_data_types(df)
 ```
+The function `preprocess_str_columns()` reprocesses specified string columns in a DataFrame by removing empty strings, converting string representations of numerical values to floats or integers, and leaving non-string values unchanged.
 ```python
 def preprocess_str_columns(df, columns):
     """
@@ -442,8 +565,9 @@ def preprocess_str_columns(df, columns):
         df[col] = df[col].apply(lambda x: int(float(x)) if isinstance(x, str) and x.replace(".", "", 1).isdigit() and float(x) == int(float(x)) else x)
 ```
 --------
+Analysis of string-composed columns to detect empty strings, those solely comprising spaces, or numeric strings, aiming to enhance data usability through transformation
 ```python
-# Analysis of string-composed columns to detect empty strings, those solely comprising spaces, or numeric strings, aiming to enhance data usability through transformation
+# Cast to string
 columns_w_str = types_df[types_df['basic_types'].str.contains("str")].index.tolist()
 preprocess_str_columns(df, columns_w_str)
 print(f"str columns:\t",columns_w_str)
@@ -452,6 +576,39 @@ print(f"str columns:\t",columns_w_str)
 ```
 str columns:	 ['warranty', 'sub_status', 'condition', 'deal_ids', 'site_id', 'listing_type_id', 'buying_mode', 'listing_source', 'parent_item_id', 'category_id', 'last_updated', 'international_delivery_mode', 'id', 'currency_id', 'thumbnail', 'title', 'date_created', 'secure_thumbnail', 'status', 'video_id', 'permalink', 'seller_country', 'seller_state', 'seller_city', 'shipping_dimensions', 'shipping_mode', 'shipping_tags']
 ```
+--------
+The `missing_values_table()` generates a table displaying the number and percentage of missing values for each column in the DataFrame.
+```python
+def missing_values_table(df, message = False):
+    """
+    Generate a table with the number and percentage of missing values for each column in the DataFrame.
+
+    Args:
+    - df (pandas DataFrame): Dataframe to check.
+    - message (bool): If print the message
+
+    Returns:
+    - pandas DataFrame: A table with columns for the number of missing values, the percentage of missing values,
+      and the data type of each column.
+    """
+    missing_values = df.isnull().sum()
+    missing_percent = 100 * missing_values / len(df)
+    missing_percent = missing_percent.round(2)
+    
+    missing_table = pd.DataFrame({'Missing Values': missing_values, '% of Total Values': missing_percent})
+    
+    missing_table['Data Type'] = df.dtypes
+    missing_table = missing_table[missing_table['Missing Values'] != 0]
+    missing_table = missing_table.sort_values('% of Total Values', ascending=False)
+    
+    if message:
+        print(f"Your selected dataframe has {df.shape[1]} columns and {df.shape[0]} rows.\n"
+          f"There are {missing_table.shape[0]} columns that have missing values.")
+    
+    return missing_table
+```
+We will conduct an analysis of columns containing missing data.
+
 --------
 ```python
 # Get columns with missing data
@@ -487,14 +644,17 @@ missing_table
 | seller_city              | 2                 | object    |
 ```
 --------
+
+### 2.3.1 Columns with missing data 
+The `warranty`, `parent_item_id`, `descriptions`, `thumbnail`, `secure_thumbnail`, `seller_country`, `seller_state` and `seller_city` columns will be evaluated further later on, while the rest of the columns will be removed due to their high percentage of missing values
 ```python
-# The 'warranty', 'parent_item_id' and 'descriptions' columns will be evaluated further later on, while the rest of the columns will be removed due to their high percentage of missing values
+# Delete empty columns
 empty_columns_exceptions = ["warranty", "parent_item_id", "descriptions", "thumbnail", "secure_thumbnail", "seller_country", "seller_state", "seller_city"]
 
 for column in empty_columns_exceptions:
     empty_columns.remove(column)
 
-print(f"Columns to remove due to high count of missing data: {empty_columns}")
+print(f"Columns to remove due to high count of missing data: {empty_columns}\n")
 print(f"Columns to be analyzed due to the presence of missing data: {empty_columns_exceptions}")
 
 for column in empty_columns:
@@ -503,23 +663,10 @@ for column in empty_columns:
 *Output:*
 ```
 Columns to remove due to high count of missing data: ['subtitle', 'listing_source', 'coverage_areas', 'shipping_methods', 'differential_pricing', 'catalog_product_id', 'shipping_dimensions', 'shipping_tags', 'original_price', 'deal_ids', 'official_store_id', 'sub_status', 'video_id', 'shipping_free_methods']
+
 Columns to be analyzed due to the presence of missing data: ['warranty', 'parent_item_id', 'descriptions', 'thumbnail', 'secure_thumbnail', 'seller_country', 'seller_state', 'seller_city']
 ```
 --------
-### 2.3.1 Columns with missing data 
-```python
-# The 'warranty', 'parent_item_id' and 'descriptions' columns will be evaluated further later on, while the rest of the columns will be removed due to their high percentage of missing values
-empty_columns_exceptions = ["warranty", "parent_item_id", "descriptions", "thumbnail", "secure_thumbnail", "seller_country", "seller_state", "seller_city"]
-
-for column in empty_columns_exceptions:
-    empty_columns.remove(column)
-
-print(f"Columns to remove due to high count of missing data: {empty_columns}")
-print(f"Columns to be analyzed due to the presence of missing data: {empty_columns_exceptions}")
-
-for column in empty_columns:
-    df = df.drop(columns=[column])
-```
 ### 2.3.2 descriptions
 --------
 ```python
@@ -541,8 +688,9 @@ print(f"Information for row {random_row} in column id: {df['id'].iloc[random_row
 Information for row 50198 in column id: MLA1923708022, and in column descriptions: MLA1923708022-906724134
 ```
 --------
+Considering the high similarity between the information in `descriptions` and that in `id` columns, `descriptions` is removed to avoid redundancy and streamline the dataset.
 ```python
-# Considering the high similarity between the information in descriptions and that in id, descriptions is removed to avoid redundancy and streamline the dataset.
+# Drop descriptions
 df = df.drop(columns=['descriptions'])
 ```
 ### 2.3.3 warranty
@@ -556,7 +704,7 @@ print(f"Number of unique values: {len(df['warranty'].value_counts())}")
 Number of unique values: 9535
 ```
 --------
-Given its extensive range of categories and considerable missing data, the decision has been made to discard this column. The creation of the new column "warranty_info" serves to distill complex warranty information into a simplified binary variable, capturing whether any warranty details are provided. This transformation streamlines the feature space while retaining crucial insights about the presence or absence of warranty information. Moreover, it acknowledges the tendency for new items to frequently disclose warranty duration or status, contrasting with the relatively rare occurrence of warranty information for used products.
+Given its extensive range of categories and considerable missing data, the decision has been made to discard the `warranty` column. The creation of the new column `warranty_info` serves to distill complex warranty information into a simplified binary variable, capturing whether any warranty details are provided. It acknowledges the tendency for new items to frequently disclose warranty duration or status, contrasting with the relatively rare occurrence of warranty information for used products.
 
 
 ```python
@@ -566,6 +714,8 @@ df = df.drop(columns=["warranty"])
 ```
 Now that we've handled columns containing lists and dictionaries, as well as empty columns, let's shift our attention to columns composed of basic Python types, we will work with groups of related columns.
 ## 2.4 Address columns
+This group includes the columns related to the seller's address.
+
 --------
 ```python
 # Obtain the count of unique values for each column.
@@ -624,18 +774,19 @@ Tierra del Fuego          10
 Name: seller_state, dtype: int64
 ```
 --------
-Creating a new column "buenos_aires_seller" to combine sellers from Buenos Aires and the Federal Capital is justified due to their geographical proximity and socioeconomic similarities. This consolidation simplifies data analysis, ensures consistency, and facilitates meaningful comparisons. Additionally, sellers from these two regions constitute the vast majority of the dataset, making this grouping approach highly relevant and practical.
+Creating a new column `buenos_aires_seller` to combine sellers from Buenos Aires and the Federal Capital is justified due to their geographical proximity and socioeconomic similarities. This consolidation simplifies data analysis, ensures consistency, and facilitates meaningful comparisons. Additionally, sellers from these two regions constitute the vast majority of the dataset, making this grouping approach highly relevant and practical.
 ```python
 # Create 'buenos_aires_seller'
 df['buenos_aires_seller'] = df['seller_state'].isin(['Buenos Aires', 'Capital Federal'])
 ```
-Given that all sellers are from Argentina, the information provided by the column seller_country is unnecessary. Furthermore, since the majority of sellers come from the Buenos Aires province or the Federal Capital, the detailed information in the seller_city column is also unnecessary, especially considering its numerous categories.
+Given that all sellers are from Argentina, the information provided by the column `seller_country` is unnecessary. Furthermore, since the majority of sellers come from the Buenos Aires province or the Federal Capital, the detailed information in the `seller_city` column is also unnecessary, especially considering its numerous categories.
 ```python
 # Delete 'seller_country', 'seller_state', 'seller_city'
 for column in address_columns:
     df = df.drop(columns=[column])
 ```
 ## 2.5 Shipping columns
+This group includes the columns related to the shipping.
 
 ```python
 shipping_columns = ["shipping_mode", "free_shipping", "local_pick_up", "international_delivery_mode"]
@@ -649,8 +800,9 @@ print(f"Number of unique clases in shipping_mode: {list(df['shipping_mode'].uniq
 Number of unique clases in shipping_mode: ['not_specified', 'me2', 'custom', 'me1']
 ```
 --------
+Unpack the `shipping_mode` column into `shipping_not_specified`, `shipping_me2`, `shipping_custom`, and `shipping_me1` columns.
 ```python
-# Unpack the 'shipping_mode' column into 'shipping_not_specified', 'shipping_me2', 'shipping_custom', and 'shipping_me1'.
+# Unpack 'shipping_mode'
 shipping_modes = list(df['shipping_mode'].unique())
 
 for mode in shipping_modes:
@@ -668,7 +820,7 @@ df["international_delivery_mode"].value_counts()
 none    90000
 Name: international_delivery_mode, dtype: int64
 ```
-The 'international_delivery_mode' column has a single value, a string of 'none', so it will be removed.
+The `international_delivery_mode` column has a single value, a string of 'none', so it will be removed.
 
 --------
 ```python
@@ -677,6 +829,7 @@ df = df.drop(columns=['international_delivery_mode'])
 ```
 The 'free_shipping' and 'local_pick_up' columns require no further processing.
 ## 2.6 Tag columns
+This group includes the columns related to the tags.
 ```python
 tag_columns = ['dragged_bids_and_visits','dragged_visits','free_relist','good_quality_thumbnail','poor_quality_thumbnail']
 ```
@@ -697,22 +850,23 @@ poor_quality_thumbnail        13
 dtype: int64
 ```
 --------
-Given the similar nature of the 'dragged_bids_and_visits' and 'dragged_visits' columns, the information will be merged into a single column named 'dragged_bids_or_visits'
+Given the similar nature of the `dragged_bids_and_visits` and `dragged_visits` columns, the information will be merged into a single column named `dragged_bids_or_visits`
 ```python
 # Create dragged_bids_or_visits
 df["dragged_bids_or_visits"] = df["dragged_bids_and_visits"] | df["dragged_visits"]
 ```
-Due to the low occurrence of True values in the 'good_quality_thumbnail', 'poor_quality_thumbnail', and 'free_relist' columns, they will be removed.
+Due to the low occurrence of True values in the `good_quality_thumbnail`, `poor_quality_thumbnail`, and `free_relist` columns, they will be removed.
 ```python
 # Delete dragged_bids_and_visits, dragged_visits, free_relist, good_quality_thumbnail, poor_quality_thumbnail
 for column in tag_columns:
     df = df.drop(columns=[column])
 ```
 ## 2.7 Payment methods molumns
+This group includes the columns related to payment method.
 ```python
 payment_methods_columns = ['Acordar con el comprador','American Express','Cheque certificado','Contra reembolso','Diners','Efectivo','Giro postal','MasterCard','Mastercard Maestro','MercadoPago','Tarjeta de crédito','Transferencia bancaria','Visa','Visa Electron','accepts_mercadopago']
 ```
-The payment methods were grouped as follows:
+The payment methods were grouped in `agree_with_buyer_payment`, `card_payment`, `cash_payment`, `bank_payment` and `mercadopago_payment` as follows:
 
 - **Agree_with_buyer_payment**: Only includes the payment method "Acordar con el comprador". This method involves agreeing on the payment directly with the buyer.
   
@@ -746,6 +900,7 @@ for column in payment_methods_columns:
     df = df.drop(columns=[column])
 ```
 ## 2.8 Price Columns
+This group includes the columns related to the price of the product.
 ```python
 price_columns = ["currency_id", "price", "base_price"]
 ```
@@ -761,13 +916,13 @@ USD      504
 Name: currency_id, dtype: int64
 ```
 --------
-The 'currency_id' column is transformed into 'price_in_usd' to indicate when the listing displays its price in USD.
+The `currency_id` column is transformed into `price_in_usd` to indicate when the listing displays its price in USD.
 ```python
 # Make 'price_in_usd' and 'delete currency_id'
 df['price_in_usd'] = df['currency_id'].replace({'USD': True, 'ARS': False})
 df = df.drop(columns=['currency_id'])
 ```
-'price' and 'base_price' appear to have a similar nature. An evaluation will be conducted to determine if there are significant differences in their values.
+`price` and `base_price` appear to have a similar nature. An evaluation will be conducted to determine if there are significant differences in their values.
 
 --------
 ```python
@@ -788,12 +943,13 @@ print(f"Number of inavlid values on price: {len(df[df['price']< 0])}")
 Number of inavlid values on price: 0
 ```
 --------
-Due to the similarity between the data in 'price' and 'base_price', one of the two columns will be removed to avoid redundancy in the data.
+Due to the similarity between the data in `price` and `base_price`, one of the two columns will be removed to avoid redundancy in the data.
 ```python
 # Delete base_price
 df = df.drop(columns=['base_price'])
 ```
 ## 2.9 Time columns
+This group includes the columns related to time or dates.
 ```python
 time_columns = ['start_time', 'stop_time', 'date_created', 'last_updated']
 ```
@@ -804,7 +960,7 @@ df['stop_time'] = pd.to_datetime(df['stop_time'], unit='ms')
 df['date_created'] = pd.to_datetime(df['date_created'], format='%Y-%m-%dT%H:%M:%S.%fZ')
 df['last_updated'] = pd.to_datetime(df['last_updated'], format='%Y-%m-%dT%H:%M:%S.%fZ')
 ```
-'start_time' and 'date_created' appear to have a similar nature. An evaluation will be conducted to determine if there are significant differences in their values.
+`start_time` and `date_created` appear to have a similar nature. An evaluation will be conducted to determine if there are significant differences in their values.
 
 --------
 ```python
@@ -815,7 +971,7 @@ print(f"Number of samples where start_time and date_created differ: {len(df[df['
 Number of samples where start_time and date_created differ: 18238
 ```
 --------
-Upon thorough comparison of the columns 'start_time' and 'date_created', it was found that while there are indeed differences between the two columns, these discrepancies amount to just one second. Hence, for the purposes of this analysis, both columns effectively contain the same information.
+Upon thorough comparison of the columns `start_time` and `date_created`, it was found that while there are indeed differences between the two columns, these discrepancies amount to just one second. Hence, for the purposes of this analysis, both columns effectively contain the same information.
 
 --------
 ```python
@@ -823,8 +979,8 @@ df.loc[df['start_time'] != df['date_created'], ['start_time', 'date_created']].h
 ```
 *Output:*
 ```markdown
-| start_time | date_created |
-|------------|--------------|
+|      start_time     |     date_created    |
+|---------------------|---------------------|
 | 2015-08-30 14:24:01 | 2015-08-30 14:24:02 |
 | 2015-10-03 23:11:29 | 2015-10-03 23:11:30 |
 | 2015-09-30 15:05:20 | 2015-09-30 15:05:21 |
@@ -838,7 +994,7 @@ df.loc[df['start_time'] != df['date_created'], ['start_time', 'date_created']].h
 
 ```
 --------
-The corresponding columns for the week number and day of the week when the offer began, and likewise for when it ended, are created. Additionally, a column is generated to calculate the number of days that elapsed from the start to the end of the offer.
+The corresponding columns for the week number and day of the week when the offer began, and likewise for when it ended, are created. Additionally, a column `days_active` is generated to calculate the number of days that elapsed from the start to the end of the offer.
 ```python
 # Make 'start_week', 'start_day', 'stop_week', 'stop_day', 'days_active'
 df['start_week'] = df['start_time'].dt.isocalendar().week
@@ -847,17 +1003,18 @@ df['stop_week'] = df['stop_time'].dt.isocalendar().week
 df['stop_day'] = df['stop_time'].dt.dayofweek
 df['days_active'] = (df['stop_time'] - df['start_time']).dt.days
 ```
-The columns with redundant information are removed, and it was determined that the 'last_updated' column does not provide relevant information.
+The columns with redundant information are removed, and it was determined that the `last_updated` column does not provide relevant information.
 ```python
 # Delete time columns
 for column in time_columns:
     df = df.drop(columns=[column])
 ```
 ## 2.10 Quantity columns
+This group includes the columns related to the stock or quantities of the product.
 ```python
 quantity_columns = ["initial_quantity", "sold_quantity", "available_quantity"]
 ```
-An integrity check is performed on the data for 'initial_quantity', 'sold_quantity', and 'available_quantity' columns.
+An integrity check is performed on the data for `initial_quantity`, `sold_quantity` and `available_quantity` columns.
 
 --------
 ```python
@@ -872,13 +1029,14 @@ Number of inavlid values on sold_quantity: 0
 Number of inavlid values on available_quantity: 0
 ```
 --------
-The 'initial_quantity', 'sold_quantity' and 'available_quantity' columns require no further processing.
+The `initial_quantity`, `sold_quantity` and `available_quantity` columns require no further processing.
 
 ## 2.11 Listing control columns
+This group includes the columns related to the listing.
 ```python
 listing_control_columns =["status", "buying_mode", "listing_type_id", "automatic_relist"]
 ```
-Analyze the value counts of column 'status' to gain insights into its distribution and frequency of occurrence.
+Analyze the value counts of column `status` to gain insights into its distribution and frequency of occurrence.
 
 --------
 ```python
@@ -893,7 +1051,7 @@ not_yet_active        1
 Name: status, dtype: int64
 ```
 --------
-The unpacking of the "status" column into the variables "is_active" "is_paused" "is_closed" of "is_not_yet_active" was not performed due to the limited amount of meaningful information it could provide.
+The unpacking of the `status` column into the variables `is_active`, `is_paused`, `is_closed` of `is_not_yet_active` was not performed due to the limited amount of meaningful information it could provide.
 ```python
 # Unpack and delete status
 status_values = list(df['status'].unique())
@@ -906,7 +1064,7 @@ for status in status_values:
 
 df = df.drop(columns=['status'])
 ```
-We will analyze the value counts of column 'buying_mode' to gain insights into its distribution and frequency of occurrence.
+We will analyze the value counts of column `buying_mode` to gain insights into its distribution and frequency of occurrence.
 
 --------
 ```python
@@ -921,7 +1079,7 @@ auction         707
 Name: buying_mode, dtype: int64
 ```
 --------
-The unpacking of the 'status' column into the variables 'buy_it_now' 'classified' and 'auction''
+The unpacking of the `status` column into the variables `buy_it_now`, `classified` and `auction`'
 ```python
 # Unpack and delete buying_mode
 buying_modes = list(df['buying_mode'].unique())
@@ -930,7 +1088,7 @@ for mode in buying_modes:
 
 df = df.drop(columns=['buying_mode'])
 ```
-We will analyze the value counts of column 'listing_type_id' to gain insights into its distribution and frequency of occurrence.
+We will analyze the value counts of column `listing_type_id` to gain insights into its distribution and frequency of occurrence.
 
 --------
 ```python
@@ -948,7 +1106,7 @@ gold_pro           13
 Name: listing_type_id, dtype: int64
 ```
 --------
-The column 'listing_type_id' will be unpacked to create new columns denoting each unique category present. Specifically, the categories 'gold_special', 'gold', 'gold_premium', and 'gold_pro' have been grouped under the listing_gold column. This grouping was done as these categories generally have a limited number of individual examples, allowing for better representation and generalization in the new combined column.
+The column `listing_type_id` will be unpacked to create new columns denoting each unique category present, therefore `listing_free`, `listing_bronze`, `listing_silver` columns are created.  The categories 'gold_special', 'gold', 'gold_premium', and 'gold_pro' have been grouped under the `listing_gold` column. This grouping was done as these categories generally have a limited number of individual examples, allowing for better representation and generalization in the new combined column.
 
 ```python
 # Unpack and delete listing_type_id
@@ -961,23 +1119,25 @@ df['listing_gold'] = df['listing_type_id'].isin(gold_categories)
 
 df = df.drop(columns=['listing_type_id'])
 ```
-The 'automatic_relist' column require no further processing.
+The `automatic_relist` column require no further processing.
 
 ## 2.12 Links columns
+This group includes the columns related to links or URLs.
 ```python
 links_columns = ["thumbnail", "secure_thumbnail", "permalink"]
 ```
-The columns 'thumbnail', 'secure_thumbnail', 'permalink' contain only links and do not contribute to the prediction task, hence they will be removed.
+The columns `thumbnail`, `secure_thumbnail`, `permalink` contain only links and do not contribute to the prediction task, hence they will be removed.
 ```python
 # Delete link columns
 for column in links_columns:
     df = df.drop(columns=[column])
 ```
 ## 2.13 Id columns
+This group includes the columns related to Ids.
 ```python
 id_columns = ["title","seller_id","id","parent_item_id","category_id","site_id" ]
 ```
-We will analyze the unique values of the columns 'title', 'seller_id', 'id', 'parent_item_id', 'category_id' and 'site_id' to gain insights into its distribution and frequency of occurrence.
+We will analyze the unique values of the columns `title`, `seller_id`, `id`, `parent_item_id`, `category_id` and `site_id` to gain insights into its distribution and frequency of occurrence.
 
 --------
 ```python
@@ -994,7 +1154,7 @@ Unique values in category_id: 10491
 Unique values in site_id: 1
 ```
 --------
-All columns exhibited a large number of categories, except for site_id, which had only one unique category. Additionally, it is worth noting that seller_id values are typically assigned in the order that sellers register on the platform. Regarding other ID columns such as id, parent_item_id, category_id, and site_id, their generation function is dependent on internal policies of the company and may or may not be related to the condition of the product being new or used.
+All columns exhibited a large number of categories, except for `site_id`, which had only one unique category. Additionally, it is worth noting that `seller_id` values are typically assigned in the order that sellers register on the platform. Regarding other ID columns such as `id`, `parent_item_id`, `category_id`, and `site_id`, their generation function is dependent on internal policies of the company and may or may not be related to the condition of the product being new or used.
 
 ```python
 # Delete id columns
@@ -1002,6 +1162,7 @@ for column in id_columns:
     df = df.drop(columns=[column])
 ```
 ## 2.14 Tiding up
+We'll reorder the columns to establish a more meaningful arrangement.
 ```python
 COLUMNS_ORDER = [
     # product info
@@ -1023,12 +1184,13 @@ COLUMNS_ORDER = [
 # Organize dataframe columns
 df = df.reindex(columns=COLUMNS_ORDER)
 ```
+All boolean columns will be mapped as False:0 and True:1
 ```python
 # Transforms boolean column
 bool_columns = df.select_dtypes(include=bool).columns
 df[bool_columns] = df[bool_columns].astype(int)
 ```
-An essential step forward: The function `preprocess_dataset()` has been coded and resides within `src/features/data_preprocessing.py`. This paves the way for streamlined data preprocessing in future endeavors.
+An essential step forward: The function `preprocess_dataset()` has been coded and resides within `src/features/data_preprocess.py` and in Appendix A. This paves the way for streamlined data preprocessing in future endeavors.
 # 3. Data Exploratory Analisys (DAE)
 
 Prior to delving into the analysis, it is imperative to conduct a thorough examination of the columns, scrutinizing their respective sources and discerning the nature of their data types. This preliminary step is pivotal in laying a robust foundation for subsequent data processing and analysis, ensuring a comprehensive understanding of the dataset's composition and characteristics.
@@ -1309,8 +1471,8 @@ else:
     test_target = pd.read_csv("../data/staging/test_target.csv")
 ```
 ```python
-df = pd.concat([train_data, train_target], axis=1).copy(deep=True)
-df_2 = pd.concat([test_data, test_target], axis=1).copy(deep=True)
+df = pd.concat([train_data, train_target], axis=1).copy(deep=True) # Train data
+df_2 = pd.concat([test_data, test_target], axis=1).copy(deep=True) # Test data
 ```
 ## 3.2 Data Exploration Analisis (DAE)
 ```python
@@ -1323,6 +1485,7 @@ bool_columns = ['price_in_usd', 'warranty_info', 'mode_buy_it_now', 'mode_classi
 
 In this phase of our analysis, we embark on an examination of the distribution patterns exhibited by binary categorical variables within our dataset. The exploration of these variables serves as a crucial step in understanding the fundamental characteristics and potential insights they may provide.
 
+The `create_subplots()` function creates a figure with a grid of subplots and applies a specified plotting function to each subplot.
 ```python
 def create_subplots(plot_function, data, classes, num_rows, num_cols,
                     title="", title_font_size=16, fig_size=(5,5),
@@ -1382,6 +1545,7 @@ def create_subplots(plot_function, data, classes, num_rows, num_cols,
     fig.tight_layout()
     plt.show()
 ```
+The `binary_countplot_function()` makes a countplot for binary data compatible with `create_subplots()`.
 
 ```python
 def binary_countplot_function(ax, data, class_label, **kwargs):
@@ -1410,7 +1574,7 @@ create_subplots(binary_countplot_function, df, target_column + bool_columns, num
 ![Binary countplot](images/3_2_1.png)
 
 --------
-The generated heatmap, produced by the boolean_correlation_heatmap_function(), illustrates the correlation between two boolean columns within a dataset. It represents a correlation matrix where each cell corresponds to a pair of states from the two boolean variables. It facilitates the identification of patterns and relationships between them within the dataset.
+The generated heatmap, produced by the `boolean_correlation_heatmap_function()`, illustrates the correlation between two boolean columns within a dataset. It represents a correlation matrix where each cell corresponds to a pair of states from the two boolean variables. It facilitates the identification of patterns and relationships between them within the dataset.
 
 Interpretation:
 
@@ -1470,7 +1634,7 @@ create_subplots(boolean_correlation_heatmap_function, df, target_column + bool_c
 ```
 *Output:*
 
-![Binary countplot](images/3_2_1-1.png)
+![Boolean correlation heatmap](images/3_2_1-1.png)
 
 --------
 
@@ -1495,6 +1659,7 @@ df[numeric_columns].describe()
 
 ```
 --------
+The `boxplot_function()` makes a boxplot plot compatible with `create_subplots()`.
 ```python
 def boxplot_function(ax, data, class_label,**kwargs):
     """
@@ -1518,9 +1683,10 @@ create_subplots(boxplot_function, df, numeric_columns, num_rows=2, num_cols=3, t
 ```
 *Output:*
 
-![Binary countplot](images/3_2_2.png)
+![Initial Boxplot](images/3_2_2.png)
 
 --------
+The `histogram_function()` makes a histogram plot compatible with `create_subplots()`.
 ```python
 def histogram_function(ax, data, class_label,**kwargs):
     """
@@ -1544,7 +1710,7 @@ create_subplots(histogram_function, df, numeric_columns, num_rows=2, num_cols=3,
 ```
 *Output:*
 
-![Binary countplot](images/3_2_2-1.png)
+![Initial Histogram](images/3_2_2-1.png)
 
 --------
 
@@ -1583,14 +1749,14 @@ plot_correlation_matrix(df, numeric_columns)
 ```
 *Output:*
 
-![Binary countplot](images/3_2_2-2.png)
+![Correlation Matrix](images/3_2_2-2.png)
 
 --------
 
-we observed a strong correlation only between 'initial_quantity' and 'available_quantity.' This correlation is primarily attributed to instances where the product remains unsold at the time of data evaluation. However, for the remaining variables, no significant correlations were observed, indicating independence among most features.
+we observed a strong correlation only between `initial_quantity` and `available_quantity.` This correlation is primarily attributed to instances where the product remains unsold at the time of data evaluation. However, for the remaining variables, no significant correlations were observed, indicating independence among most features.
 
 ### 3.2.3 Date columns
-For the variable 'start_week', the distribution is concentrated between weeks 32 and 42, while for the variable 'stop_week', the concentration lies between weeks 43 and 52.
+For the variable `start_week`, the distribution is concentrated between weeks 32 and 42, while for the variable `stop_week`, the concentration lies between weeks 43 and 52.
 
 --------
 ```python
@@ -1598,10 +1764,10 @@ create_subplots(histogram_function, df, ['start_week','stop_week'], num_rows=1, 
 ```
 *Output:*
 
-![Binary countplot](images/3_2_3.png)
+![Week Data Histogram](images/3_2_3.png)
 
 --------
-Regarding 'start_day', its distribution is predominantly concentrated within the initial days of the week, exhibiting contrasting behavior to 'stop_day', where the concentration shifts towards later days of the week.
+Regarding `start_day`, its distribution is predominantly concentrated within the initial days of the week, exhibiting contrasting behavior to `stop_day`, where the concentration shifts towards later days of the week.
 
 --------
 ```python
@@ -1609,12 +1775,12 @@ create_subplots(histogram_function, df, ['start_day','stop_day'], num_rows=1, nu
 ```
 *Output:*
 
-![Binary countplot](images/3_2_3-1.png)
+![Weekday Data Histogram](images/3_2_3-1.png)
 
 --------
 
 ### 3.2.4 Outlier detection
-The detection of outliers in numerical columns will focus on three key features: 'price', 'days_active', 'initial_quantity', 'sold_quantity' and 'pictures'. 'available_quantity' will not be evaluated directly as it is dependent on 'initial_quantity'. This approach ensures a focused analysis on the core attributes while considering the interdependence among related features.
+The detection of outliers in numerical columns will focus on three key features: `price`, `days_active`, `initial_quantity`, `sold_quantity` and `pictures`. `available_quantity` will not be evaluated directly as it is dependent on `initial_quantity`. This approach ensures a focused analysis on the core attributes while considering the interdependence among related features.
 
 #### 3.2.4.1 days_active
 --------
@@ -1625,11 +1791,11 @@ plot_percentile_range(df,"days_active",0)
 *Output:*
 
 Range days_active: 0 - 3457
-![Binary countplot](images/3_2_4_1.png)
+![percentile range days_active](images/3_2_4_1.png)
 
 --------
 
-For the variable 'days_active', it is noteworthy that while the data range spans from 0 to 3457, the majority of observations cluster below 100. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
+For the variable `days_active`, it is noteworthy that while the data range spans from 0 to 3457, the majority of observations cluster below 100. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
 
 --------
 ```python
@@ -1643,11 +1809,11 @@ plot_percentile_range(df,"days_active",1)
 
 Range days_active p5 - p95 : 60 - 60
 Number of observations: 87101
-![Binary countplot](images/3_2_4_1-1.png)
+![percentile range days_active](images/3_2_4_1-1.png)
 
 --------
 
-Upon analyzing only the values falling within the range of the 5th to 95th percentiles, the 'days_active' variable is observed to be solely 60.
+Upon analyzing only the values falling within the range of the 5th to 95th percentiles, the `days_active` variable is observed to be solely 60.
 
 #### 3.2.4.2 price
 --------
@@ -1658,11 +1824,11 @@ plot_percentile_range(df,"price",0,log_scale=True)
 *Output:*
 
 Range price: 0.84 - 2222222222.0
-![Binary countplot](images/3_2_4_2.png)
+![percentile range price](images/3_2_4_2.png)
 
 --------
 
-For the variable 'price', it is noteworthy that while the data range spans from 0.84 to 2,222,222,222 the majority of observations cluster below 10000. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
+For the variable `price`, it is noteworthy that while the data range spans from 0.84 to 2,222,222,222 the majority of observations cluster below 10000. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
 
 --------
 ```python
@@ -1676,7 +1842,7 @@ plot_percentile_range(df,"price",price_range,log_scale=True)
 
 Range price p2 - p98 : 24.99 - 36000.0
 Number of observations: 86429
-![Binary countplot](images/3_2_4_2-1.png)
+![percentile range price](images/3_2_4_2-1.png)
 
 --------
 
@@ -1692,10 +1858,10 @@ plot_percentile_range(df,"initial_quantity",0,log_scale=True)
 *Output:*
 
 Range initial_quantity: 1 - 9999
-![Binary countplot](images/3_2_4_3.png)
+![percentile range initial_quantity](images/3_2_4_3.png)
 
 --------
-For the variable 'available_quantity', it is noteworthy that while the data range spans from 1 to 9999 the majority of observations cluster below 100. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
+For the variable `available_quantity`, it is noteworthy that while the data range spans from 1 to 9999 the majority of observations cluster below 100. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
 
 --------
 ```python
@@ -1709,11 +1875,11 @@ plot_percentile_range(df,"initial_quantity",initial_quantity_range,log_scale=Tru
 
 Range initial_quantity p4 - p96 : 1 - 79
 Number of observations: 86402
-![Binary countplot](images/3_2_4_3-1.png)
+![percentile range initial_quantity](images/3_2_4_3-1.png)
 
 --------
 
-Upon analyzing the variable "initial_quantity," it's apparent that 40% of the data is represented by a singular value of 1. Moreover, around 80% of the dataset falls within the range of 1 to 5 units, indicating a concentrated distribution. Additionally, the majority of observations (90%) vary between 1 and 10 units, while a significant portion (95%) spans from 1 to 50 units. Notably, a minority of observations (98%) extend from 1 to 150 units, suggesting the presence of outliers. These insights illuminate the variable's distributional nuances and potential impacts on analyses.
+Upon analyzing the variable `initial_quantity` it's apparent that 40% of the data is represented by a singular value of 1. Moreover, around 80% of the dataset falls within the range of 1 to 5 units, indicating a concentrated distribution. Additionally, the majority of observations (90%) vary between 1 and 10 units, while a significant portion (95%) spans from 1 to 50 units. Notably, a minority of observations (98%) extend from 1 to 150 units, suggesting the presence of outliers. These insights illuminate the variable's distributional nuances and potential impacts on analyses.
 
 #### 3.2.4.4 sold_quantity
 --------
@@ -1724,11 +1890,11 @@ plot_percentile_range(df,"sold_quantity",0,log_scale=True)
 *Output:*
 
 Range sold_quantity: 0 - 6065
-![Binary countplot](images/3_2_4_4.png)
+![percentile range sold_quantity](images/3_2_4_4.png)
 
 --------
 
-For the variable 'sold_quantity', it is noteworthy that while the data range spans from 1 to 1540 the majority of observations cluster below 100. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
+For the variable `sold_quantity`, it is noteworthy that while the data range spans from 1 to 1540 the majority of observations cluster below 100. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
 
 --------
 ```python
@@ -1742,11 +1908,11 @@ plot_percentile_range(df,"sold_quantity",sold_quantity_range,log_scale=True)
 
 Range sold_quantity p1 - p99 : 0 - 41
 Number of observations: 89108
-![Binary countplot](images/3_2_4_4-1.png)
+![percentile range sold_quantity](images/3_2_4_4-1.png)
 
 --------
 
-Upon analyzing the variable "sold_quantity," it's apparent that 98% of the data is below 50.
+Upon analyzing the variable `sold_quantity` it's apparent that 98% of the data is below 50.
 
 #### 3.2.4.5 num_pictures
 
@@ -1758,11 +1924,11 @@ plot_percentile_range(df,"num_pictures",0)
 *Output:*
 
 Range num_pictures: 0 - 36
-![Binary countplot](images/3_2_4_5.png)
+![percentile range num_pictures](images/3_2_4_5.png)
 
 --------
 
-For the variable 'num_pictures', the majority of observations cluster below 10. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
+For the variable `num_pictures`, the majority of observations cluster below 10. We will delve deeper into the distribution within the range between different range of percentiles to gain insights into the prevailing trends.
 
 --------
 ```python
@@ -1776,15 +1942,15 @@ plot_percentile_range(df,"num_pictures",num_pictures_range,)
 
 Range num_pictures p1 - p99 : 1 - 9
 Number of observations: 88429
-![Binary countplot](images/3_2_4_5-1.png)
+![percentile range num_pictures](images/3_2_4_5-1.png)
 
 --------
 
-Upon analyzing the variable 'pictures' it's apparent that 98% of the data is below 10.
+Upon analyzing the variable `pictures` it's apparent that 98% of the data is below 10.
 
 ### 3.2.5 Data Refinement and Outlier removal
 
-Initially, we will discard columns exhibiting substantial imbalance as they predominantly offer redundant information that can be distilled from other columns, the "days_active" column, predominantly featuring a single value (60), will be eliminated. Additionally, we'll define operational bounds for "price" and "initial_quantity," facilitating a focused modeling approach within practical limits.
+Initially, we will discard columns exhibiting substantial imbalance as they predominantly offer redundant information that can be distilled from other columns, the `days_active` column, predominantly featuring a single value (60), will be eliminated. Additionally, we'll define operational bounds for `price` and `initial_quantity` facilitating a focused modeling approach within practical limits.
 
 ```python
 columns_to_remove = ["price_in_usd", "mode_classified", "mode_auction", "shipping_me1", "days_active"]
@@ -1809,6 +1975,24 @@ Skewness is a statistical measure that indicates the asymmetry of a probability 
 #### 3.2.6.1 initial
 During this stage, a thorough analysis will be conducted on the following columns: price, initial_quantity, sold_quantity, available_quantity, and num_pictures
 
+The `kdeplot_function()` makes a kde plot compatible with `create_subplots()`.
+```python
+def kdeplot_function(ax, data, class_label,**kwargs):
+    """
+    Create a KDE plot on the given subplot axis using the provided DataFrame.
+
+    Parameters:
+        ax (matplotlib.axes.Axes): The subplot axis to draw the KDE plot.
+        data (pandas.Series or pandas.DataFrame): The data for the KDE plot.
+        class_label (str): The label for the class corresponding to the data.
+        **kwargs: Arbitrary keyword arguments to pass to seaborn.kdeplot.
+
+    Returns:
+        None
+    """
+    sns.kdeplot(data=data[class_label], ax=ax,**kwargs)
+    ax.set_xlabel(class_label)
+```
 --------
 ```python
 create_subplots(kdeplot_function, df, ['price','initial_quantity','sold_quantity','available_quantity'], num_rows=2, num_cols=2, title="Kdeplot", fig_size=(10, 10))
@@ -1819,7 +2003,7 @@ print(f"Skewness of available_quantity: {df['available_quantity'].skew():.2}")
 ```
 *Output:*
 
-![Binary countplot](images/3_2_6_1.png)
+![initial kde](images/3_2_6_1.png)
 
 
 ```
@@ -1836,7 +2020,7 @@ print(f"Skewness of num_pictures: {df['num_pictures'].skew():.2}")
 ```
 *Output:*
 
-![Binary countplot](images/3_2_6_1-1.png)
+![num_pictures kde](images/3_2_6_1-1.png)
 
 
 ```
@@ -1866,7 +2050,7 @@ print(f"Skewness of available_quantity: {df_skew['available_quantity'].skew():.3
 ```
 *Output:*
 
-![Binary countplot](images/3_2_6_2.png)
+![log10 kde](images/3_2_6_2.png)
 
 
 ```
@@ -1903,7 +2087,7 @@ print(f"Skewness of available_quantity: {df_skew['available_quantity'].skew():.3
 ```
 *Output:*
 
-![Binary countplot](images/3_2_6_3.png)
+![yeojohnson kde](images/3_2_6_3.png)
 
 
 ```
@@ -1931,7 +2115,7 @@ Below is an overview of the data scaling process facilitated by a series of cust
 - OneHotScaler: Designed for handling one-hot encoded variables, this transformer maintains data integrity by leaving such variables unchanged.
 - DataScaler: This class orchestrates the scaling process by leveraging the aforementioned transformers within a predefined pipeline. Columns designated for standardization, min-max scaling, week scaling, weekday scaling, and one-hot encoding are organized and transformed accordingly.
 
-Users are encouraged to explore the implementation of `DataScaler()` provided code, located at path `src/features/data_process.py`, to gain a deeper understanding of the intricacies involved in data scaling and transformation.
+Users are encouraged to explore the implementation of `DataScaler()` provided code, located at path `src/features/data_process.py` and in Appendix B, to gain a deeper understanding of the intricacies involved in data scaling and transformation.
 
 ```python
 scaler = DataScaler()
@@ -1943,6 +2127,71 @@ y_test_scaled = df_2[['is_new']].copy(deep=True)
 X_train_scaled = scaler.fit_transform(X_train_scaled)
 X_test_scaled = scaler.transform(X_test_scaled)
 ```
+### 3.2.8 PCA Analisys
+The `visualize_pca()` function visualizes the Principal Component Analysis (PCA) loadings of features on the first principal component. 
+
+```python
+def visualize_pca(X, y=None):
+    """
+    Visualize PCA loadings of features on the first principal component.
+
+    Args:
+    - X: DataFrame of shape (n_samples, n_features)
+        Input features.
+    - y: Series or array-like of shape (n_samples,), optional (default=None)
+        Target labels.
+
+    Returns:
+    - None
+    """
+    
+    # Si se proporciona y, unirlo con X
+    if y is not None:
+        if isinstance(X, pd.DataFrame):
+            X = pd.concat([X, y], axis=1)
+        else:
+            raise ValueError("X must be a DataFrame if y is provided.")
+
+    # Ajustamos un modelo de PCA a los datos
+    pca = PCA()
+    X_pca = pca.fit_transform(X)
+
+    loadings = pca.components_
+
+    feature_names = X.columns
+
+    sorted_indices = np.argsort(np.abs(loadings[0]))[::-1]
+    sorted_loadings = loadings[0][sorted_indices]
+    sorted_feature_names = feature_names[sorted_indices]
+
+    plt.figure(figsize=(8, 6))
+    plt.style.use("seaborn-notebook")
+    if y is not None:
+        bar_color = ['blue'] * len(X.columns)
+        y_column_index = sorted_feature_names.get_loc(y.columns[0])
+        bar_color[y_column_index] = 'red'  
+        plt.bar(range(len(X.columns)), sorted_loadings, tick_label=sorted_feature_names, color=bar_color)
+    else:
+        plt.bar(range(len(X.columns)), sorted_loadings, tick_label=sorted_feature_names)
+    plt.title('Loadings of Features on First Principal Component (Ordered)')
+    plt.xlabel('Features')
+    plt.ylabel('Loadings')
+    plt.xticks(rotation=90)
+    plt.show()
+```
+--------
+```python
+visualize_pca(df)
+```
+
+*Output:*
+
+![PCA](images/3_2_8.png)
+
+--------
+The exploration of Principal Component Analysis (PCA) loadings revealed that the `is_new` column exhibits one of the largest loadings among all features, indicating its substantial influence on the first principal component. While this suggests the target's critical role in capturing overall variance and differentiating data points in the reduced-dimensional space, it does not necessarily imply a high correlation with other variables.
+
+### 3.2.8 Save data
 The processed data will be stored securely to ensure its integrity and accessibility for future analyses.
 ```python
 X_train_scaled.to_csv("../data/processed/train_data.csv", index=False)
@@ -1950,7 +2199,7 @@ y_train_scaled.to_csv("../data/processed/train_target.csv", index=False)
 X_test_scaled.to_csv("../data/processed/test_data.csv", index=False)
 y_test_scaled.to_csv("../data/processed/test_target.csv", index=False)
 ```
-Furthermore, to streamline the data processing task, an implementation of the function `process_dataset()` has been developed and is located at path `src/features/data_process.py`. This function encapsulates all necessary steps for data processing, including scaling, encoding, and transformation, thereby simplifying the overall workflow and enhancing efficiency.
+Furthermore, to streamline the data processing task, an implementation of the function `process_dataset()` has been developed and is located at path `src/features/data_process.py` in Appendix B. This function encapsulates all necessary steps for data processing, including scaling, encoding, and transformation, thereby simplifying the overall workflow and enhancing efficiency.
 
 # 4. Models
 ## 4.1 Model Construction Overview
@@ -2171,7 +2420,7 @@ plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_val, y_prob_val, "Logis
 ```
 *Output:*
 
-![Binary countplot](images/4_2_4.png)
+![roc_curve_and_accuracy Logistic Regression](images/4_2_4.png)
 
 ------------
 
@@ -2210,7 +2459,7 @@ plot_confusion_matrix(y_test, y_pred,False,["Used","New"])
 ```
 *Output:*
 
-![Binary countplot](images/4_2_6.png)
+![confusion matrix Logistic Regression](images/4_2_6.png)
 
 ------------
 
@@ -2244,11 +2493,11 @@ best_threshold, threshold_accuracy = find_best_threshold(fpr, tpr, thresholds, y
 --------
 
 ```python
-plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_val, y_prob_val, "XGBoost - Validation data")
+plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_val, y_prob_val, "Random Forest - Validation data")
 ```
 *Output:*
 
-![Binary countplot](images/4_3_4.png)
+![roc_curve_and_accuracy Random Forest](images/4_3_4.png)
 
 ------------
 
@@ -2287,7 +2536,7 @@ plot_confusion_matrix(y_test, y_pred,False,["Used","New"])
 ```
 *Output:*
 
-![Binary countplot](images/4_3_6.png)
+![confusion matrix Random Forest](images/4_3_6.png)
 
 ------------
 
@@ -2321,11 +2570,11 @@ best_threshold, threshold_accuracy = find_best_threshold(fpr, tpr, thresholds, y
 --------
 
 ```python
-plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_val, y_prob_val, "Random Forest - Validation data")
+plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_val, y_prob_val, "XGBoost - Validation data")
 ```
 *Output:*
 
-![Binary countplot](images/4_4_4.png)
+![roc_curve_and_accuracy XGBoost](images/4_4_4.png)
 
 ------------
 
@@ -2364,11 +2613,12 @@ plot_confusion_matrix(y_test, y_pred,False,["Used","New"])
 ```
 *Output:*
 
-![Binary countplot](images/4_4_6.png)
+![confusion matrix XGBoost](images/4_4_6.png)
 
 ------------
 
 ## 4.5 Neural Network
+The implementation of neural networks is too extensive to be included in this chapter. However, detailed information will be provided in Appendix C for reference.
 ### 4.5.1 Import Libraries
 
 ```python
@@ -2389,12 +2639,37 @@ model_torch = ModelFC(len(X_train.columns),len(y_train.columns),[8,8,8],0.5)
 model = PyTorchWrapper(model_torch,num_epochs=10)
 model.fit(X_train, y_train)
 ```
+The neural network architecture comprises a fully connected feedforward model consisting of three hidden layers. Each hidden layer is composed of linear transformation followed by a rectified linear unit (ReLU) activation function and dropout regularization. The first two hidden layers contain eight neurons each, while the third hidden layer has one neuron. The output layer utilizes a sigmoid activation function to produce a binary classification output. Overall, the network has a total of 393 trainable parameters, making it relatively lightweight yet capable of capturing complex patterns in the data.
+```
+==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+Model_FC                                 [1, 1]                    --
+├─Sequential: 1-1                        [1, 1]                    --
+│    └─Linear: 2-1                       [1, 8]                    240
+│    └─ReLU: 2-2                         [1, 8]                    --
+│    └─Dropout: 2-3                      [1, 8]                    --
+│    └─Linear: 2-4                       [1, 8]                    72
+│    └─ReLU: 2-5                         [1, 8]                    --
+│    └─Dropout: 2-6                      [1, 8]                    --
+│    └─Linear: 2-7                       [1, 8]                    72
+│    └─ReLU: 2-8                         [1, 8]                    --
+│    └─Dropout: 2-9                      [1, 8]                    --
+│    └─Linear: 2-10                      [1, 1]                    9
+├─Sigmoid: 1-2                           [1, 1]                    --
+==========================================================================================
+Total params: 393
+Trainable params: 393
+Non-trainable params: 0
+==========================================================================================
+```
+------------
 ```python
 model.model.plot_training()
 ```
 *Output:*
 
-![Binary countplot](images/4_5_4-1.png)
+![NN training](images/4_5_4-1.png)
 
 ------------
 ### 4.5.4 Evaluation of ROC and AUC
@@ -2411,7 +2686,7 @@ plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_val, y_prob_val, "Neura
 ```
 *Output:*
 
-![Binary countplot](images/4_5_4.png)
+![roc_curve_and_accuracy NN](images/4_5_4.png)
 
 ------------
 
@@ -2450,11 +2725,11 @@ plot_confusion_matrix(y_test, y_pred,False,["Used","New"])
 ```
 *Output:*
 
-![Binary countplot](images/4_5_6.png)
+![confusion matrix NN](images/4_5_6.png)
 
 ------------
 
-## 4.6 Ensamble
+## 4.6 Ensambled
 ### 4.6.1 Import Libraries
 
 ```python
@@ -2495,7 +2770,7 @@ model.fit(X_train, y_train)
 ```
 *Output:*
 
-![Binary countplot](images/4_6_3.png)
+![Ensambled structure](images/4_6_3.png)
 
 ------------
 ### 4.6.4 Evaluation of ROC and AUC
@@ -2508,11 +2783,11 @@ best_threshold, threshold_accuracy = find_best_threshold(fpr, tpr, thresholds, y
 --------
 
 ```python
-plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_val, y_prob_val, "Random Forest - Validation data")
+plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_val, y_prob_val, "Ensambled - Validation data")
 ```
 *Output:*
 
-![Binary countplot](images/4_6_4.png)
+![roc_curve_and_accuracy ensambled](images/4_6_4.png)
 
 ------------
 
@@ -2522,7 +2797,7 @@ print(f"Optimal Threshold: {optimal_threshold:.3}, Accuracy: {optimal_accuracy:.
 ```
 *Output:*
 ```python
-Optimal Threshold: 0.556, Accuracy: 0.847
+Optimal Threshold: 0.505, Accuracy: 0.849
 ```
 ------------
 ### 4.6.5 Evaluation of Performance Metrics
@@ -2551,13 +2826,611 @@ plot_confusion_matrix(y_test, y_pred,False,["Used","New"])
 ```
 *Output:*
 
-![Binary countplot](images/4_6_6.png)
+![confusion matrix ensambled](images/4_6_6.png)
 
 ------------
+# 5. Model Interpretability
+Some of the evaluated models offer a means to quantify the impact of each variable on a prediction, providing interpretability to model outcomes. This feature allows for a deeper understanding of how individual factors influence predictions, enhancing the model's transparency and facilitating insightful interpretations of its outputs
 
+## 5.1 Logistic Regression
+The coefficients in a logistic regression model indicate the extent to which each independent variable affects the likelihood of the outcome. Positive coefficients suggest an increase in the likelihood of the event, while negative coefficients suggest a decrease. In simpler terms, they tell us how much each factor contributes to the probability of the outcome.
+
+------------
+```python
+weights = pd.Series(model.coef_[0], index=X_train.columns.values) # model: is the logistic regression model
+df_weights = pd.DataFrame({'value': weights.abs()})
+df_weights['is_positive'] = weights >= 0
+df_weights = df_weights.sort_values(by='value', ascending=False)
+df_weights = df_weights.reindex(columns=['is_positive', 'value'])
+print(df_weights)
+```
+*Output:*
+```markdown
+| Column                  | is_positive | value    |
+|-------------------------|-------------|----------|
+| listing_free            | False       | 2.538441 |
+| mercadopago_payment     | True        | 1.419561 |
+| free_shipping           | True        | 1.266880 |
+| listing_silver          | True        | 1.072464 |
+| automatic_relist        | True        | 1.065719 |
+| available_quantity      | True        | 0.868736 |
+| dragged_bids_or_visits  | False       | 0.834830 |
+| num_pictures            | False       | 0.722728 |
+| listing_bronze          | True        | 0.668265 |
+| sold_quantity           | True        | 0.650994 |
+| price                   | True        | 0.646328 |
+| start_week              | True        | 0.630872 |
+| agree_with_buyer_payment| False       | 0.612121 |
+| listing_gold            | True        | 0.600997 |
+| initial_quantity        | True        | 0.520097 |
+| buenos_aires_seller     | False       | 0.426904 |
+| card_payment            | True        | 0.405641 |
+| shipping_not_specified  | False       | 0.344237 |
+| shipping_me2            | False       | 0.342441 |
+| is_active               | False       | 0.309736 |
+| mode_buy_it_now         | True        | 0.306936 |
+| cash_payment            | False       | 0.257693 |
+| stop_week               | True        | 0.255770 |
+| warranty_info           | True        | 0.221129 |
+| start_day               | False       | 0.150998 |
+| local_pick_up           | True        | 0.120802 |
+| bank_payment            | True        | 0.100718 |
+| shipping_custom         | False       | 0.065298 |
+| stop_day                | True        | 0.008702 |
+```
+------------
+
+## 5.2 Random Forest.
+The feature importances obtained from a random forest model represent the contribution of each feature to the predictive performance of the model. Higher importance values indicate that the corresponding feature has a stronger influence on the model's predictions. In other words, features with higher importances are more informative and play a more significant role in determining the outcome of the model.
+
+------------
+```python
+feature_importances = model.feature_importances_ # model: is the random forest model
+feature_names = X_train.columns.tolist()
+feature_importance_df = pd.DataFrame({'Feature': feature_names, 'Importance': feature_importances})
+feature_importance_df_sorted = feature_importance_df.sort_values(by='Importance',ascending=False)
+feature_importance_df_sorted.set_index('Feature', inplace=True)
+feature_importance_df_sorted
+```
+*Output:*
+```markdown
+| Feature                    | Importance |
+|----------------------------|------------|
+| price                      | 0.200611   |
+| listing_free               | 0.128401   |
+| initial_quantity           | 0.118089   |
+| available_quantity         | 0.088510   |
+| num_pictures               | 0.058471   |
+| sold_quantity              | 0.048380   |
+| start_week                 | 0.046980   |
+| stop_week                  | 0.046138   |
+| start_day                  | 0.035586   |
+| stop_day                   | 0.035243   |
+| listing_bronze             | 0.030022   |
+| warranty_info              | 0.017181   |
+| listing_silver             | 0.016551   |
+| dragged_bids_or_visits     | 0.015466   |
+| card_payment               | 0.014107   |
+| bank_payment               | 0.013288   |
+| local_pick_up              | 0.013241   |
+| cash_payment               | 0.011936   |
+| buenos_aires_seller        | 0.008495   |
+| agree_with_buyer_payment   | 0.008363   |
+| shipping_not_specified     | 0.008053   |
+| listing_gold               | 0.007885   |
+| shipping_me2               | 0.007333   |
+| automatic_relist           | 0.006345   |
+| is_active                  | 0.005832   |
+| free_shipping              | 0.005127   |
+| shipping_custom            | 0.002556   |
+| mode_buy_it_now            | 0.001247   |
+| mercadopago_payment        | 0.000564   |
+
+```
+------------
 # Appendix
+## A. Preprocess Apendices
+### preprocess_dataset()
+The `preprocess_dataset()` encapsulates a series of transformations aimed at preparing a dataset for further analysis. These transformations include unpacking nested columns, generating new features, removing unnecessary columns, and structuring the dataframe columns. 
 
-## PuntualDataset
+```python
+def preprocess_dataset(df_data,df_target=None,del_na=False,bool_values=False, message=False):
+    """
+    Preprocesses a dataset by performing various transformations such as unpacking nested columns,
+    creating new features, deleting unnecessary columns, and organizing the dataframe columns.
+
+    Args:
+        df_data (DataFrame): The raw dataset to preprocess in the format of MLA_100k_checked_v3.jsonlines. 
+        df_target (DataFrame, optional): The target dataset containing the 'condition' column. Defaults to None.
+        del_na (bool, optional): Whether to delete rows with missing values. Defaults to False.
+        bool_values (bool, optional): Wheter to mantain the boolean columns, if False transforms bool columns into 0 and 1. Default False
+        message (bool, optional): Whether to print progress messages. Defaults to False.
+
+    Returns:
+        DataFrame or tuple of DataFrames: The preprocessed dataset(s).
+
+    Raises:
+        ValueError: If 'df_target' does not contain the 'condition' column.
+    """
+
+    COLUMN_TARGET = "condition"
+
+    COLUMNS_ORDER = [
+    # Info del producto
+    "price","price_in_usd","initial_quantity","sold_quantity","available_quantity","warranty_info",
+    # Info del modo de compra
+    "mode_buy_it_now","mode_classified","mode_auction",
+    # Info de medios de pago
+    "cash_payment","card_payment","bank_payment","mercadopago_payment","agree_with_buyer_payment",
+    # Info del envio
+    "shipping_me1","shipping_me2","shipping_custom","shipping_not_specified","free_shipping","local_pick_up",
+    # Info del vendedor
+    "buenos_aires_seller","listing_free","listing_bronze","listing_silver","listing_gold",
+    # Info de la publicacion
+    "start_week","start_day","stop_week","stop_day","days_active","is_active",
+    #"is_paused","is_closed",
+    "num_pictures","automatic_relist","dragged_bids_or_visits"
+    ]  
+
+    df = df_data
+    if df_target is not None:
+        if COLUMN_TARGET not in df_target.columns:
+            raise ValueError(f"df_target must have the column {COLUMN_TARGET}") 
+
+    # STEP 01: Unpack and delete seller_address 
+    df['seller_country'] = df.apply(lambda x : x['seller_address']['country']['name'], axis = 1) 
+    df['seller_state'] = df.apply(lambda x : x['seller_address']['state']['name'], axis = 1)
+    df['seller_city'] = df.apply(lambda x : x['seller_address']['city']['name'], axis = 1) 
+
+    df = df.drop(columns=["seller_address"])
+
+    # STEP 02: Unpack and delete shipping
+    df['shipping_dimensions'] = df.apply(lambda x : x['shipping'].get('dimensions', None), axis = 1)
+    df['free_shipping'] = df.apply(lambda x : x['shipping'].get('free_shipping', None), axis = 1)
+    df['local_pick_up'] = df.apply(lambda x : x['shipping'].get('local_pick_up', None), axis = 1)
+    df['shipping_methods'] = df.apply(lambda x : x['shipping'].get('methods', None), axis = 1) # Will be deleted later
+    df['shipping_free_methods'] = df.apply(lambda x : x['shipping'].get('free_methods', None), axis = 1) # Will be deleted later
+    df['shipping_mode'] = df.apply(lambda x : x['shipping'].get('mode', None), axis = 1)
+    df['shipping_tags'] = df.apply(lambda x : x['shipping'].get('tags', None), axis = 1) # Will be deleted later
+
+    df = df.drop(columns=["shipping"])
+
+    # STEP 03: Unpack ists with a length of up to 1.
+    columns_to_unpack = ["coverage_areas", "sub_status", "deal_ids", "descriptions", "shipping_tags","shipping_methods"]
+
+    for column in columns_to_unpack:
+        df[column] = df[column].apply(lambda x: x[0] if isinstance(x, list) and len(x) > 0 else None)
+
+    # STEP 04: Unpack "descriptions"
+    df['descriptions'] = df['descriptions'].apply(lambda x: eval(x) if x is not None else None)
+
+    # STEP 05: Unpack tags in boolean columns and delete tags
+    unique_tags = set(item for sublist in df['tags'] for item in sublist)
+
+    for value in unique_tags:
+        df[value] = df['tags'].apply(lambda x: value in x if x else False)
+
+    df = df.drop(columns=['tags'])
+
+    # STEP 06: Get the description of the available payment methods.
+    df['non_mercado_pago_payment_methods'] = df['non_mercado_pago_payment_methods'].apply(lambda x: [d.get('description') for d in x] if x else [])
+
+    # STEP 07: Unpack non_mercado_pago_payment_methods in boolean columns and delete non_mercado_pago_payment_methods
+    unique_payments = set(item for sublist in df['non_mercado_pago_payment_methods'] for item in sublist)
+
+    for value in unique_payments:
+        df[value] = df['non_mercado_pago_payment_methods'].apply(lambda x: value in x if x else False)
+
+    df = df.drop(columns=['non_mercado_pago_payment_methods'])
+
+    # STEP 08: Get the number of pictures of the product and delete pictures.
+    df['num_pictures']  = df['pictures'].apply(lambda x: len(x) if isinstance(x, list) else None)
+
+    df = df.drop(columns=["pictures"])
+
+    # STEP 09: Delete variations
+    df = df.drop(columns=["variations"])
+
+    # STEP 10: Delete attributes
+    df = df.drop(columns=["attributes"])
+
+    # STEP 11: Cast str columns
+    types_df = categorize_data_types(df)
+    columns_w_str = types_df[types_df['basic_types'].str.contains("str")].index.tolist()
+
+    preprocess_str_columns(df, columns_w_str)
+
+    # STEP 12: Get columns with missing data
+    missing_table = missing_values_table(df)
+    empty_columns = missing_table.index.tolist()
+
+    # STEP 13: Delete empty columns
+    empty_columns_expeptions = ["warranty", "parent_item_id", "descriptions", "thumbnail", "secure_thumbnail", "seller_country", "seller_state", "seller_city"]
+
+    for column in empty_columns:
+        if column not in empty_columns_expeptions:
+            df = df.drop(columns=[column])
+
+    # STEP 14: Delete descriptions
+    df = df.drop(columns=['descriptions'])
+
+    # STEP 15: Create warranty_info and delete descriptions
+    df['warranty_info'] = df['warranty'].apply(lambda x: True if x is not None else False)
+    df = df.drop(columns=["warranty"])
+
+    # STEP 16: Create buenos_aires_seller
+    df['buenos_aires_seller'] = df['seller_state'].isin(['Buenos Aires', 'Capital Federal'])
+
+    # STEP 17: Delete seller_country, seller_state, seller_city
+    address_columns = ["seller_country", "seller_state", "seller_city"]
+    for column in address_columns:
+        df = df.drop(columns=[column])
+
+    # STEP 18: Unpack and delete shipping_mode
+    shipping_modes = list(df['shipping_mode'].unique())
+
+    for mode in shipping_modes:
+        df[f'shipping_{mode}'] = df['shipping_mode'] == mode
+
+    df = df.drop(columns=['shipping_mode'])
+
+    # STEP 19: Unpack and delete shipping_mode
+    df = df.drop(columns=['international_delivery_mode'])
+
+    # STEP 20: Create dragged_bids_or_visits
+    df["dragged_bids_or_visits"] = df["dragged_bids_and_visits"] | df["dragged_visits"]
+
+    # STEP 21: Delete dragged_bids_and_visits, dragged_visits, free_relist, good_quality_thumbnail, poor_quality_thumbnail
+    tag_columns = ['dragged_bids_and_visits','dragged_visits','free_relist','good_quality_thumbnail','poor_quality_thumbnail']
+
+    for column in tag_columns:
+        df = df.drop(columns=[column])
+
+    # STEP 22: Group the payment methods.
+    payment_mapping = {
+        'agree_with_buyer_payment': ['Acordar con el comprador'],
+        'card_payment': ['American Express', 'MasterCard', 'Mastercard Maestro', 'Tarjeta de crédito', 'Visa', 'Visa Electron', 'Diners'],
+        'cash_payment': ['Efectivo', 'Giro postal', 'Contra reembolso'],
+        'bank_payment': ['Transferencia bancaria', 'Cheque certificado'],
+        'mercadopago_payment': ['MercadoPago']
+    }
+    for new_column, original_columns in payment_mapping.items():
+        df[new_column] = df[original_columns].any(axis=1)
+
+    # STEP 23: Join accepts_mercadopago and mercadopago_payment in mercadopago_payment
+    df["mercadopago_payment"] = df["accepts_mercadopago"] | df["mercadopago_payment"]
+    
+    # STEP 24: Delete payment_methods_columns
+    payment_methods_columns = ['Acordar con el comprador','American Express','Cheque certificado','Contra reembolso','Diners','Efectivo','Giro postal','MasterCard','Mastercard Maestro','MercadoPago','Tarjeta de crédito','Transferencia bancaria','Visa','Visa Electron','accepts_mercadopago']
+    for column in payment_methods_columns:
+        df = df.drop(columns=[column])
+
+    # STEP 25: Make price_in_usd and delete currency_id
+    df['price_in_usd'] = df['currency_id'].replace({'USD': True, 'ARS': False})
+
+    df = df.drop(columns=['currency_id'])
+
+    # STEP 26: Delete base_price
+    df = df.drop(columns=['base_price'])
+
+    # STEP 27: Change columns to datetime object.
+    df['start_time'] = pd.to_datetime(df['start_time'], unit='ms')
+    df['stop_time'] = pd.to_datetime(df['stop_time'], unit='ms')
+    df['date_created'] = pd.to_datetime(df['date_created'], format='%Y-%m-%dT%H:%M:%S.%fZ')
+    df['last_updated'] = pd.to_datetime(df['last_updated'], format='%Y-%m-%dT%H:%M:%S.%fZ')
+    
+    # STEP 28: Make start_week, start_day, stop_week, stop_day, days_active
+    df['start_week'] = df['start_time'].dt.isocalendar().week
+    df['start_day'] = df['start_time'].dt.dayofweek
+    df['stop_week'] = df['stop_time'].dt.isocalendar().week
+    df['stop_day'] = df['stop_time'].dt.dayofweek
+    df['days_active'] = (df['stop_time'] - df['start_time']).dt.days
+
+    # STEP 29: Delete time columns
+    time_columns = ['start_time', 'stop_time', 'date_created', 'last_updated']
+    for column in time_columns:
+        df = df.drop(columns=[column])
+            
+    # STEP 30: Unpack and delete status
+    status_values = list(df['status'].unique())
+    status_exceptions = ["paused", "closed","not_yet_active"]
+    for i in status_exceptions:
+        try:
+            status_values.remove("not_yet_active")
+        except:
+            pass
+    for status in status_values:
+        df[f'is_{status}'] = df['status'] == status
+
+    df = df.drop(columns=['status'])
+
+    # STEP 31: Unpack and delete buying_mode
+    buying_modes = list(df['buying_mode'].unique())
+    for mode in buying_modes:
+        df[f'mode_{mode}'] = df['buying_mode'] == mode
+
+    df = df.drop(columns=['buying_mode'])
+
+    # STEP 32: Unpack and delete listing_type_id
+    gold_categories = ['gold_special', 'gold', 'gold_premium', 'gold_pro']
+    df['listing_free'] = df['listing_type_id'] == 'free'
+    df['listing_bronze'] = df['listing_type_id'] == 'bronze'
+    df['listing_silver'] = df['listing_type_id'] == 'silver'
+    df['listing_gold'] = df['listing_type_id'].isin(gold_categories)
+
+    df = df.drop(columns=['listing_type_id'])
+
+    # STEP 33: Delete link columns
+    links_columns = ["thumbnail", "secure_thumbnail", "permalink"]
+    for column in links_columns:
+        df = df.drop(columns=[column])
+
+    # STEP 34: Delete id columns
+    id_columns = ["title","seller_id","id","parent_item_id","category_id","site_id" ]
+    for column in id_columns:
+        df = df.drop(columns=[column])
+
+    # STEP 35: Organize dataframe columns
+    df = df.reindex(columns=COLUMNS_ORDER)
+
+    # Concatenate dataframes
+    if df_target is not None:
+        df = pd.concat([df, df_target[COLUMN_TARGET]], axis=1)
+        df['is_new'] = df[COLUMN_TARGET].map({'new': True, 'used': False})
+        df = df.drop(columns=[COLUMN_TARGET])
+
+    # Transforms boolean column
+    if not bool_values:
+        bool_columns = df.select_dtypes(include=bool).columns
+        df[bool_columns] = df[bool_columns].astype(int)
+
+    # Delete na rows:
+    if del_na:
+        df = df.dropna()
+        
+    if df_target is not None:
+        df_data = df.drop(columns=['is_new'])
+        df_target = df[['is_new']]
+        return df_data, df_target
+    else:
+        df_data = df
+        return df_data
+```
+## B. Process Apendices
+### WeekScaler
+The `WeekScaler` transformer scales weeks in the year to a range between 0 and 1, offering flexibility in handling temporal data.
+
+```python
+class WeekScaler(BaseEstimator, TransformerMixin):
+    """
+    Custom transformer to scale weeks in the year to range 0 - 1.
+
+    Args:
+        - None
+
+    Attributes:
+        - range_min (float, default=0): Minimum value of the desired range.
+        - range_max (float, default=51):  Maximum value of the desired range.   
+    """
+    def __init__(self):
+        self.range_min = 1
+        self.range_max = 52
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_scaled = (X - self.range_min) / (self.range_max - self.range_min)
+        return X_scaled
+
+    def fit_transform(self, X, y=None):
+        return self.fit(X, y).transform(X)
+```
+### WeekdayScaler
+The `WeekdayScaler` transformer scales days of the week to a range from 0 to 1, facilitating uniform treatment of temporal variables.
+```python
+class WeekdayScaler(BaseEstimator, TransformerMixin):
+    """
+    Custom transformer to scale days in the week to range 0 - 1.
+
+    Args:
+        - None
+
+    Attributes:
+        - range_min (float, default=0): Minimum value of the desired range.
+        - range_max (float, default=51):  Maximum value of the desired range.   
+    """
+    def __init__(self):
+        self.range_min = 0
+        self.range_max = 6
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_scaled = (X - self.range_min) / (self.range_max - self.range_min)
+        return X_scaled
+
+    def fit_transform(self, X, y=None):
+        return self.fit(X, y).transform(X)
+```
+### OneHotScaler
+The `OneHotScaler` is designed for handling one-hot encoded variables, this transformer maintains data integrity by leaving such variables unchanged.
+```python
+class OneHotScaler(BaseEstimator, TransformerMixin):
+    """
+    Custom transformer to handle one-hot encoded variables.
+
+    This transformer does not perform any scaling and simply returns the input data unchanged.
+
+    Args:
+        - None
+
+    Attributes:
+        - None
+    """
+
+    def __init__(self):
+        pass
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        return X
+
+    def fit_transform(self, X, y=None):
+        return self.fit(X, y).transform(X)
+```
+### DataScaler
+The `DataScaler` class orchestrates the scaling process. Columns designated for standardization, min-max scaling, week scaling, weekday scaling, and one-hot encoding are organized and transformed accordingly.
+```python
+class DataScaler():
+    """
+    Class to scale new data using a predefined transformation pipeline.
+
+    Args:
+        None
+
+    Attributes:
+        columns_to_standardize (list): List of columns to be standardized.
+        columns_to_minmax_scale (list): List of columns to be min-max scaled.
+        columns_to_week_scale (list): List of columns to be week scaled.
+        columns_to_weekday_scale (list): List of columns to be weekday scaled.
+        columns_to_one_hot_scale (list): List of columns to be one-hot encoded.
+        ct (ColumnTransformer): ColumnTransformer object for data scaling.
+        new_order (list): New order of columns after scaling.
+        old_order (list): Original order of columns in the dataset.
+    """
+
+    def __init__(self):
+        self.columns_to_standardize = ['price', 'initial_quantity', 'sold_quantity', 'available_quantity']
+        self.columns_to_minmax_scale = ['num_pictures']
+        self.columns_to_week_scale = ['start_week', 'stop_week']
+        self.columns_to_weekday_scale = ['start_day', 'stop_day']
+        self.columns_to_one_hot_scale = [ 'warranty_info', 'mode_buy_it_now',
+                                          'cash_payment', 'card_payment',
+                                          'bank_payment', 'mercadopago_payment', 'agree_with_buyer_payment',
+                                          'shipping_me2', 'shipping_custom',
+                                          'shipping_not_specified', 'free_shipping', 'local_pick_up',
+                                          'buenos_aires_seller', 'listing_free', 'listing_bronze',
+                                          'listing_silver', 'listing_gold', 'is_active',
+                                          'automatic_relist', 'dragged_bids_or_visits']
+        self.ct = ColumnTransformer(
+            [('std', StandardScaler(), self.columns_to_standardize),
+             ('minmax', MinMaxScaler(), self.columns_to_minmax_scale),
+             ('week', WeekScaler(), self.columns_to_week_scale),
+             ('weekday', WeekdayScaler(), self.columns_to_weekday_scale),
+             ('one_hot', OneHotScaler(), self.columns_to_one_hot_scale)
+             ],
+            remainder='passthrough')
+        self.new_order = self.columns_to_standardize + self.columns_to_minmax_scale + \
+                         self.columns_to_week_scale + self.columns_to_weekday_scale + \
+                         self.columns_to_one_hot_scale
+        self.old_order = None
+
+    def fit_transform(self, X_train):
+        """
+        Fit and transform the input data using the predefined transformation pipeline.
+
+        Args:
+            - X_train (DataFrame): Input data to be scaled.
+
+        Returns:
+            - X_train_scaled (DataFrame): Scaled data.
+        """
+        self.old_order = X_train.columns
+        X_train_scaled = self.ct.fit_transform(X_train)
+        X_train_scaled = pd.DataFrame(X_train_scaled, columns=self.new_order)
+        X_train_scaled = X_train_scaled.reindex(columns=self.old_order)
+        return X_train_scaled
+    
+    def transform(self, X):
+        """
+        Transform new data using the predefined transformation pipeline.
+
+        Args:
+            - X (DataFrame): New data to be scaled.
+
+        Returns:
+            - X_scaled (DataFrame): Scaled data.
+        """
+        X_scaled = self.ct.transform(X)
+        X_scaled = pd.DataFrame(X_scaled, columns=self.new_order)
+        X_scaled = X_scaled.reindex(columns=self.old_order)
+        return X_scaled
+```
+### process_dataset()
+The `process_dataset()` encapsulates a series of transformations aimed at preparing a dataset for the models. These transformations include removing unnecessary data, scaling and normalization of the dataframe columns. 
+```python
+def process_dataset(X_train, y_train, X_test, y_test):
+    """
+    Preprocesses the dataset by performing the following steps:
+    1. Removes specified columns with low information content.
+    2. Removes rows with outlier values beyond predefined thresholds.
+    3. Applies Yeojohnson transformation to specified numeric features.
+    4. Splits the dataset into features (X) and target (y) variables.
+    5. Scales the features using a DataScaler instance.
+
+    Args:
+    - X_train (pd.DataFrame): Training set features.
+    - y_train (pd.DataFrame): Training set target variable.
+    - X_test (pd.DataFrame): Test set features.
+    - y_test (pd.DataFrame): Test set target variable.
+
+    Returns:
+    - X_train_scaled (np.ndarray): Scaled training set features.
+    - y_train_scaled (pd.DataFrame): Training set target variable.
+    - X_test_scaled (np.ndarray): Scaled test set features.
+    - y_test_scaled (pd.DataFrame): Test set target variable.
+    """
+    COLUMNS_TO_REMOVE = ["price_in_usd", "mode_classified", "mode_auction", "shipping_me1", "days_active"]
+    PRICE_THRESHOLD = 50000
+    INITIAL_QUANTITY_THRESHOLD = 150
+    SOLD_QUANTITY_THRESHOLD = 150
+    AVAILABLE_QUANTITY_THRESHOLD = 150
+    NUM_PICTURES_THRESHOLD = 10
+
+    YJ_PRICE = -0.1326933439177492
+    YJ_INITIAL_QUANTITY = -1.8163258668093907
+    YJ_SOLD_QUANTITY = -3.65996684652743
+    YJ_AVAILABLE_QUANTITY = -1.8854981114246059
+
+    df_train = pd.concat([X_train, y_train], axis=1).copy(deep=True)
+    df_test = pd.concat([X_test, y_test], axis=1).copy(deep=True)
+
+    df_list = [df_train, df_test]
+
+    for i in df_list:
+        for column in COLUMNS_TO_REMOVE:
+            i.drop(columns=[column], inplace=True)
+
+        i.drop(i[i['price'] > PRICE_THRESHOLD].index, inplace=True)
+        i.drop(i[i['initial_quantity'] > INITIAL_QUANTITY_THRESHOLD].index, inplace=True)
+        i.drop(i[i['sold_quantity'] > SOLD_QUANTITY_THRESHOLD].index, inplace=True)
+        i.drop(i[i['available_quantity'] > AVAILABLE_QUANTITY_THRESHOLD].index, inplace=True)
+        i.drop(i[i['num_pictures'] > NUM_PICTURES_THRESHOLD].index, inplace=True)
+
+    for i in range(len(df_list)):
+        df_list[i]['price'] = yeojohnson(df_list[i]['price'],YJ_PRICE)
+        df_list[i]['initial_quantity'] = yeojohnson(df_list[i]['initial_quantity'],YJ_INITIAL_QUANTITY)
+        df_list[i]['sold_quantity'] = yeojohnson(df_list[i]['sold_quantity'],YJ_SOLD_QUANTITY)
+        df_list[i]['available_quantity'] = yeojohnson(df_list[i]['available_quantity'],YJ_AVAILABLE_QUANTITY)
+
+    
+    X_train_scaled = df_train.drop(columns=['is_new']).copy(deep=True)
+    y_train_scaled = df_train[['is_new']].copy(deep=True)
+    X_test_scaled = df_test.drop(columns=['is_new']).copy(deep=True)
+    y_test_scaled = df_test[['is_new']].copy(deep=True)
+
+    scaler = DataScaler()
+    X_train_scaled = scaler.fit_transform(X_train_scaled)
+    X_test_scaled = scaler.transform(X_test_scaled)
+
+    return X_train_scaled, y_train_scaled, X_test_scaled, y_test_scaled
+```
+## C. Neural Networks Apendices
+### PuntualDataset
 
 The `PuntualDataset` class is a custom dataset implementation designed for handling tabular data. It encapsulates the functionality required to prepare features and target data for training and inference in PyTorch models. The class converts input features and target data into torch tensors and provides methods to retrieve samples from the dataset by index
 
@@ -2594,7 +3467,7 @@ class PuntualDataset(Dataset):
     def __getitem__(self, idx):
         return self.X[idx], self.y[idx]
 ```
-## ModelFC
+### ModelFC
 The `ModelFC` class represents a fully connected neural network model tailored for classification tasks. It is designed to accept input features and output predictions across a specified number of categories. This model architecture includes fully connected layers with optional dropout regularization. Additionally, it provides methods for training, validation, and plotting of training curves, enhancing its utility for model development and evaluation.
 ```python
 class ModelFC(nn.Module):
@@ -2776,7 +3649,7 @@ class ModelFC(nn.Module):
             plt.show()
 ```
 
-# PyTorchWrapper
+### PyTorchWrapper
 The `PyTorchWrapper` class offers a versatile solution for seamlessly integrating PyTorch models into scikit-learn pipelines, specifically tailored for classification tasks. It simplifies training, prediction, and probability estimation processes.
 
 ```python
