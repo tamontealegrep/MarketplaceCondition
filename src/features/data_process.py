@@ -131,7 +131,7 @@ class DataScaler():
         """
         Fit and transform the input data using the predefined transformation pipeline.
 
-        Parameters:
+        Args:
             - X_train (DataFrame): Input data to be scaled.
 
         Returns:
@@ -147,7 +147,7 @@ class DataScaler():
         """
         Transform new data using the predefined transformation pipeline.
 
-        Parameters:
+        Args:
             - X (DataFrame): New data to be scaled.
 
         Returns:
