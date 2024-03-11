@@ -3,8 +3,11 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.decomposition import PCA
 
-from .functions import percentile_range_data
+from .functions import percentile_range_data, find_best_threshold
+
 
 #---------------------------------------------------------------------------------------------------
 
@@ -265,5 +268,155 @@ def plot_percentile_range(df, column, range_min=0, range_max=50, mode='both', ti
         axs[1].set_yscale('log')
 
     plt.tight_layout()
+    plt.show()
+
+def plot_roc_curve(fpr, tpr, auc):
+    """
+    Plot the Receiver Operating Characteristic (ROC) curve.
+
+    Parameters:
+        fpr (array-like): Array containing the false positive rates.
+        tpr (array-like): Array containing the true positive rates.
+        auc (float): Area under the ROC curve (AUC) value.
+
+    Returns:
+        None (displays the plot).
+    """
+    plt.figure(figsize=(8, 6))
+    plt.plot(fpr, tpr, lw=2, label='ROC curve (AUC = %0.2f)' % auc)
+    plt.plot([0, 1], [0, 1], color='gray', linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic (ROC) Curve')
+    plt.legend(loc="lower right")
+    plt.show()
+
+def plot_roc_curve_and_accuracy(fpr, tpr, auc, thresholds, y_test, y_prob, title="",title_font_size=16):
+    """
+    Plot ROC curve and accuracy vs. threshold.
+
+    Parameters:
+        fpr (array-like): Array containing the false positive rates.
+        tpr (array-like): Array containing the true positive rates.
+        auc (float): Area under the ROC curve (AUC) value.
+        thresholds (array-like): Array containing the thresholds.
+        y_test (array-like): Array containing true labels.
+        y_prob (array-like): Array containing predicted probabilities.
+
+    Returns:
+        None (displays the plot).
+    """
+    plt.figure(figsize=(12, 5))
+    plt.suptitle(title, fontsize=title_font_size) 
+    
+    # Plot ROC curve
+    plt.subplot(1, 2, 1)
+    plt.plot(fpr, tpr, lw=2, label='ROC curve (AUC = %0.2f)' % auc)
+    plt.plot([0, 1], [0, 1], color='gray', linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic (ROC) Curve')
+    plt.legend(loc="lower right")
+
+
+    # Plot accuracy vs. threshold
+    best_threshold, best_accuracy = find_best_threshold(fpr, tpr, thresholds, y_test, y_prob)
+    accuracies = [accuracy_score(y_test, np.where(y_prob >= th, 1, 0)) for th in thresholds]
+    plt.subplot(1, 2, 2)
+    plt.plot(thresholds, accuracies, color='blue', lw=2, label='Accuracy')
+    plt.axvline(x=best_threshold, color='red', linestyle='--', label='Best Threshold')
+    plt.xlabel('Threshold')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy vs. Threshold')
+    plt.legend(loc="lower right")
+
+    plt.ylim(0, 1)
+    plt.yticks(np.arange(0, 1.1, 0.1))
+    plt.xlim(0, 1)
+    plt.xticks(np.arange(0, 1.1, 0.1))
+
+    text = f'Best Threshold: {best_threshold:.2f}\nBest Accuracy: {best_accuracy:.2f}'
+    plt.text(0.05, 0.05, text, fontsize=10, transform=plt.gca().transAxes, bbox=dict(facecolor='white', alpha=0.5))
+
+    plt.tight_layout()
+    plt.show()
+
+def plot_confusion_matrix(y_true, y_pred, normalize=False, labels=None, show_colorbar=True):
+    """
+    Function to plot a confusion matrix.
+
+    Args:
+    - y_true: numpy array, true values.
+    - y_pred: numpy array, predicted values.
+    - normalize: bool, whether to normalize the confusion matrix or not.
+    - labels: list of strings, labels for classes.
+    - show_colorbar: bool, whether to show colorbar or not.
+    """
+    conf_matrix = confusion_matrix(y_true, y_pred)
+    if labels is None:
+        labels = np.unique(y_true)
+    
+    if normalize:
+        conf_matrix = conf_matrix.astype('float') / conf_matrix.sum(axis=1)[:, np.newaxis]
+
+    plt.figure(figsize=(8, 6))
+    sns.set(font_scale=1.2)  # Font scale for labels
+
+    # Create heatmap
+    sns.heatmap(conf_matrix, annot=True, fmt='.2f' if normalize else 'd', cmap='Blues', 
+                xticklabels=labels, yticklabels=labels, vmin=0, vmax=1 if normalize else None, cbar=show_colorbar)
+
+    # Add labels and title
+    plt.xlabel('Predicted Class')
+    plt.ylabel('True Class')
+    plt.title('Confusion Matrix')
+    plt.show()
+
+def visualize_pca(X, y=None):
+    """
+    Visualize PCA loadings of features on the first principal component.
+
+    Args:
+    - X: DataFrame of shape (n_samples, n_features)
+        Input features.
+    - y: Series or array-like of shape (n_samples,), optional (default=None)
+        Target labels.
+
+    Returns:
+    - None
+    """
+    
+    # Si se proporciona y, unirlo con X
+    if y is not None:
+        if isinstance(X, pd.DataFrame):
+            X = pd.concat([X, y], axis=1)
+        else:
+            raise ValueError("X must be a DataFrame if y is provided.")
+
+    # Ajustamos un modelo de PCA a los datos
+    pca = PCA()
+    X_pca = pca.fit_transform(X)
+
+    loadings = pca.components_
+
+    feature_names = X.columns
+
+    sorted_indices = np.argsort(np.abs(loadings[0]))[::-1]
+    sorted_loadings = loadings[0][sorted_indices]
+    sorted_feature_names = feature_names[sorted_indices]
+
+    plt.figure(figsize=(8, 6))
+    plt.style.use("seaborn-notebook")
+    if y is not None:
+        bar_color = ['blue'] * len(X.columns)
+        y_column_index = sorted_feature_names.get_loc(y.columns[0])
+        bar_color[y_column_index] = 'red'  
+        plt.bar(range(len(X.columns)), sorted_loadings, tick_label=sorted_feature_names, color=bar_color)
+    else:
+        plt.bar(range(len(X.columns)), sorted_loadings, tick_label=sorted_feature_names)
+    plt.title('Loadings of Features on First Principal Component (Ordered)')
+    plt.xlabel('Features')
+    plt.ylabel('Loadings')
+    plt.xticks(rotation=90)
     plt.show()
 #---------------------------------------------------------------------------------------------------
