@@ -1,33 +1,3 @@
----
-
-Project Organization
-------------
-
-    ├── LICENSE
-    ├── README.md                   <- This document outlines the project workflow project.
-    ├── report.md                   <- Detailed report.
-    ├── data
-    │   ├── processed               <- The final, canonical data sets.
-    │   ├── staging                 <- Intermediate data that has been transformed.
-    │   └── raw                     <- The original dataset in format jsonlines.
-    │
-    ├── src                         <- Contains the all source code files.
-    │   └── features                <- Contains source code files related with features of the code.
-    │       ├── data_preprocess.py  <- Code related to preprocess of the data.
-    │       ├── data_process.py     <- Code related to process of the data.
-    │       ├── functions.py        <- Code related to general functions.
-    │       ├── neural_networks.py  <- Code related to the cration, training and evaluation of neural networks.
-    │       ├── new_or_used.py      <- Code related to read the .jsonlines dataset.
-    │       └── plots.py            <- Code related to plot.
-    │
-    ├── notebooks                   <- Jupyter notebooks with steps for data preprocessing, data processing, data exploration analisys, training and evaluating models.
-    │
-    ├── images                      <- Generated images used in this document.
-    │
-    └── requirements.txt            <- The requirements file for reproducing the analysis environment, e.g.
-
---------
-
 Predicting Item Condition in Marketplace
 ==============================
 This project addresses the challenge of predicting whether an item listed on a marketplace is new or used. The dataset contains various product attributes, seller information, and listing details. The goal is to build a machine learning model that accurately classifies item conditions based on these features, enabling better decision-making for buyers and sellers.
@@ -174,6 +144,34 @@ Within our project, we have identified several areas for improvement and alterna
 - Exploring the application of Natural Language Processing (NLP) or transformer architectures to analyze the `title` column is an intriguing possibility, aiming to derive embeddings that can be utilized by other models. The `title` column frequently contains valuable information directly indicating whether a product is new or used, serving as a potentially rich source for further analysis.
 
 - Investigating the interpretability of the ensemble model via SHAP (SHapley Additive exPlanations) values presents an intriguing opportunity to gain deeper insights into the inner workings of the model. By leveraging SHAP values, we can elucidate the contribution of each feature to the model's predictions, providing a comprehensive understanding of how different variables influence the classification outcomes. This approach not only enhances our confidence in the model's decisions but also empowers stakeholders to make more informed decisions based on the underlying factors driving the predictions.
+
+# **Project Organization**
+
+
+    ├── LICENSE
+    ├── README.md                   <- This document outlines the project workflow project.
+    ├── report.md                   <- Detailed report.
+    ├── data
+    │   ├── processed               <- The final, canonical data sets.
+    │   ├── staging                 <- Intermediate data that has been transformed.
+    │   └── raw                     <- The original dataset in format jsonlines.
+    │
+    ├── src                         <- Contains the all source code files.
+    │   └── features                <- Contains source code files related with features of the code.
+    │       ├── data_preprocess.py  <- Code related to preprocess of the data.
+    │       ├── data_process.py     <- Code related to process of the data.
+    │       ├── functions.py        <- Code related to general functions.
+    │       ├── neural_networks.py  <- Code related to the cration, training and evaluation of neural networks.
+    │       ├── new_or_used.py      <- Code related to read the .jsonlines dataset.
+    │       └── plots.py            <- Code related to plot.
+    │
+    ├── notebooks                   <- Jupyter notebooks with steps for data preprocessing, data processing, data exploration analisys, training and evaluating models.
+    │
+    ├── images                      <- Generated images used in this document.
+    │
+    └── requirements.txt            <- The requirements file for reproducing the analysis environment, e.g.
+
+--------
 
 # **How to Run the Project**
 
